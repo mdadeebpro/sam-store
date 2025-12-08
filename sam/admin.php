@@ -128,54 +128,13 @@ if ($searchQuery) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم</title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Almarai', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; color: #333; direction: rtl; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1, h2, h3 { margin: 0; color: #1a2a3a; }
-        .tabs-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-        .tab-btn { padding: 10px 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: inherit; font-weight: bold; color: #555; transition: 0.2s; }
-        .tab-btn.active { background: #1a2a3a; color: #fff; border-color: #1a2a3a; }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        .panel { background: #fff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        .btn { padding: 8px 15px; border-radius: 6px; cursor: pointer; border: none; color: #fff; font-family: inherit; font-size: 0.9rem; margin: 2px; }
-        .btn-green { background: #28a745; } .btn-orange { background: #fd7e14; } .btn-red { background: #dc3545; } .btn-blue { background: #007bff; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 1rem;}
-        .search-bar { width: 100%; padding: 12px; border: 2px solid #1a2a3a; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; vertical-align: middle; word-wrap: break-word; }
-        th { background: #1a2a3a; color: #fff; }
-        .thumb { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
-        @media screen and (max-width: 768px) {
-            .container > div:first-child { flex-direction: column-reverse; gap: 10px; align-items: center !important; }
-            .container > div:first-child h2 { font-size: 1.5rem; margin-bottom: 5px; }
-            .btn-red { width: 100%; text-align: center; padding: 10px; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-            tr { background: #fff; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; padding: 15px; }
-            td { border: none; border-bottom: 1px dashed #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 0.95rem; }
-            td:last-child { border-bottom: none; }
-            td:before { content: attr(data-label); font-weight: bold; color: #777; margin-left: 10px; white-space: nowrap; }
-            td[data-label="المنتجات"], td[data-label="العميل"] { display: block; text-align: right; background-color: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 5px; line-height: 1.8; }
-            td[data-label="المنتجات"]:before, td[data-label="العميل"]:before { display: block; margin-bottom: 5px; border-bottom: 1px solid #ddd; width: 100%; }
-            td[data-label="صورة"] { justify-content: center; border-bottom: none; } td[data-label="صورة"]:before { display: none; }
-            td[data-label="المنتج"] { display: block; text-align: center; font-size: 1.1rem; } td[data-label="المنتج"]:before { display: none; }
-            td[data-label="تحكم"] { display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 15px; } td[data-label="تحكم"]:before { display: none; }
-            td[data-label="تحكم"] button, td[data-label="تحكم"] form { flex: 1; width: 100%; } .btn { width: 100%; padding: 10px; font-size: 1rem; }
-            td[data-label="الحالة"] { display: block; text-align: right; } td[data-label="الحالة"] select { width: 100%; margin-top: 5px; padding: 10px; }
-            .res th{color: red; display: block;}
-        }
-        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .close { float: left; font-size: 24px; cursor: pointer; }
-        label { display: block; margin-top: 10px; font-weight: bold; color: #555; font-size: 0.9rem; }
-    </style>
+    <link rel="stylesheet" href="style.min.css?v=<?php echo time(); ?>">
 </head>
-<body>
+<body class="admin-body">
 
-<div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="color:#1a2a3a;">لوحة التحكم ⚙️</h2>
+<div class="admin-container">
+    <div class="admin-header">
+        <h2 class="admin-h2">لوحة التحكم ⚙️</h2>
         <a href="logout.php" class="btn btn-red">خروج</a>
     </div>
 
@@ -189,15 +148,15 @@ if ($searchQuery) {
     <?php if ($searchQuery): ?>
         <!-- نتائج البحث -->
         <?php if (count($searchProds) > 0): ?>
-            <div class="panel"><h3>نتائج المنتجات</h3><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchProds as $prod): ?><tr><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b></td><td data-label="السعر"><?= htmlspecialchars($prod['price']) ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3 class="admin-h3">نتائج المنتجات</h3><table class="admin-table"><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchProds as $prod): ?><tr><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b></td><td data-label="السعر"><?= htmlspecialchars($prod['price']) ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" class="admin-form-inline" onsubmit="return confirm('حذف؟');"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
         <?php if (count($searchCats) > 0): ?>
-            <div class="panel"><h3>نتائج الأقسام</h3><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchCats as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3 class="admin-h3">نتائج الأقسام</h3><table class="admin-table"><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchCats as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" class="admin-form-inline" onsubmit="return confirm('حذف؟');"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
         <?php if (count($searchOrds) > 0): ?>
-            <div class="panel"><h3>نتائج الطلبات</h3><table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php foreach($searchOrds as $ord): ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?></td><td data-label="العميل"><?= htmlspecialchars($ord['customer_name']) ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><?= htmlspecialchars($ord['status']) ?></td><td data-label="التاريخ"><?= htmlspecialchars($ord['created_at']) ?></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3 class="admin-h3">نتائج الطلبات</h3><table class="admin-table"><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php foreach($searchOrds as $ord): ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?></td><td data-label="العميل"><?= htmlspecialchars($ord['customer_name']) ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><?= htmlspecialchars($ord['status']) ?></td><td data-label="التاريخ"><?= htmlspecialchars($ord['created_at']) ?></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
-        <?php if (count($searchProds)==0 && count($searchCats)==0 && count($searchOrds)==0): ?><div class="panel" style="text-align:center;"><h3>لا توجد نتائج</h3></div><?php endif; ?>
+        <?php if (count($searchProds)==0 && count($searchCats)==0 && count($searchOrds)==0): ?><div class="panel" style="text-align:center;"><h3 class="admin-h3">لا توجد نتائج</h3></div><?php endif; ?>
 
     <?php else: ?>
         <div class="tabs-nav">
@@ -210,28 +169,28 @@ if ($searchQuery) {
 
         <div id="tab-orders" class="tab-content active">
             <div class="panel">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>سجل الطلبات</h3><form method="POST" onsubmit="return confirm('تفريغ؟');"><button name="delete_all_orders" class="btn btn-red">🗑️ تفريغ</button></form></div>
-                <table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php $stArr=['new'=>['جديد','#333'],'processing'=>['تجهيز','#e67e22'],'shipping'=>['توصيل','#3498db'],'delivered'=>['تم','#27ae60'],'canceled'=>['ملغي','#c0392b']]; foreach($orders as $ord): $k=$ord['status']?:'new'; ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?><br><small><?= htmlspecialchars($ord['invoice_code']) ?></small></td><td data-label="العميل"><b><?= htmlspecialchars($ord['customer_name']) ?></b><br><small><?= htmlspecialchars($ord['customer_phone']) ?></small><br><small><?= htmlspecialchars($ord['address']) ?></small><?php if($ord['notes']) echo "<br><small style='color:red'>📝" . htmlspecialchars($ord['notes']) . "</small>"; ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي" style="color:green;font-weight:bold;"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><form method="POST"><input type="hidden" name="order_id" value="<?= $ord['id'] ?>"><select name="status" onchange="this.form.submit()" style="background:<?= $stArr[$k][1] ?>;color:#fff;border:none;font-weight:bold;padding:5px;"><?php foreach($stArr as $x=>$y): ?><option value="<?= $x ?>" <?= $k==$x?'selected':'' ?> style="background:#fff;color:#000;"><?= $y[0] ?></option><?php endforeach; ?></select><input type="hidden" name="update_order_status" value="1"></form></td><td data-label="التاريخ"><?= date('Y-m-d', strtotime($ord['created_at'])) ?></td></tr><?php endforeach; ?></tbody></table>
+                <div class="panel-header"><h3 class="admin-h3">سجل الطلبات</h3><form method="POST" onsubmit="return confirm('تفريغ؟');"><button name="delete_all_orders" class="btn btn-red">🗑️ تفريغ</button></form></div>
+                <table class="admin-table"><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php $stArr=['new'=>['جديد','#333'],'processing'=>['تجهيز','#e67e22'],'shipping'=>['توصيل','#3498db'],'delivered'=>['تم','#27ae60'],'canceled'=>['ملغي','#c0392b']]; foreach($orders as $ord): $k=$ord['status']?:'new'; ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?><br><small><?= htmlspecialchars($ord['invoice_code']) ?></small></td><td data-label="العميل"><b><?= htmlspecialchars($ord['customer_name']) ?></b><br><small><?= htmlspecialchars($ord['customer_phone']) ?></small><br><small><?= htmlspecialchars($ord['address']) ?></small><?php if($ord['notes']) echo "<br><small style='color:red'>📝" . htmlspecialchars($ord['notes']) . "</small>"; ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي" style="color:green;font-weight:bold;"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><form method="POST"><input type="hidden" name="order_id" value="<?= $ord['id'] ?>"><select name="status" onchange="this.form.submit()" class="admin-select" style="background:<?= $stArr[$k][1] ?>;color:#fff;border:none;font-weight:bold;padding:5px;"><?php foreach($stArr as $x=>$y): ?><option value="<?= $x ?>" <?= $k==$x?'selected':'' ?> style="background:#fff;color:#000;"><?= $y[0] ?></option><?php endforeach; ?></select><input type="hidden" name="update_order_status" value="1"></form></td><td data-label="التاريخ"><?= date('Y-m-d', strtotime($ord['created_at'])) ?></td></tr><?php endforeach; ?></tbody></table>
             </div>
         </div>
 
         <div id="tab-products" class="tab-content">
-            <div class="panel"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>المنتجات</h3><button class="btn btn-green" onclick="openModal('addProdModal')">+ منتج</button></div><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($products as $prod): $sTxt="∞"; $bg=""; if($prod['quantity']!==null){ $n=$prod['quantity']-$prod['total_reserved']; if($n<=0){$sTxt="🚫 نفذت";$bg="background:#fff0f0";} elseif($n<5){$sTxt="⚠️ $n";$bg="background:#fffbe6";} else{$sTxt="✅ $n";} } ?><tr style="<?= $bg ?>"><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b><?php if($prod['admin_note']) echo "<br><small style='color:red'>📝" . htmlspecialchars($prod['admin_note']) . "</small>"; ?></td><td data-label="السعر"><?php if($prod['discount_price']): ?><s><?= htmlspecialchars($prod['price']) ?></s> <b style="color:#d00000"><?= htmlspecialchars($prod['discount_price']) ?></b><?php else: echo htmlspecialchars($prod['price']); endif; ?></td><td data-label="المخزون"><?= $sTxt ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><div class="panel-header"><h3 class="admin-h3">المنتجات</h3><button class="btn btn-green" onclick="openModal('addProdModal')">+ منتج</button></div><table class="admin-table"><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($products as $prod): $sTxt="∞"; $bg=""; if($prod['quantity']!==null){ $n=$prod['quantity']-$prod['total_reserved']; if($n<=0){$sTxt="🚫 نفذت";$bg="background:#fff0f0";} elseif($n<5){$sTxt="⚠️ $n";$bg="background:#fffbe6";} else{$sTxt="✅ $n";} } ?><tr style="<?= $bg ?>"><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b><?php if($prod['admin_note']) echo "<br><small style='color:red'>📝" . htmlspecialchars($prod['admin_note']) . "</small>"; ?></td><td data-label="السعر"><?php if($prod['discount_price']): ?><s><?= htmlspecialchars($prod['price']) ?></s> <b style="color:#d00000"><?= htmlspecialchars($prod['discount_price']) ?></b><?php else: echo htmlspecialchars($prod['price']); endif; ?></td><td data-label="المخزون"><?= $sTxt ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" class="admin-form-inline" onsubmit="return confirm('حذف؟');"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <div id="tab-cats" class="tab-content">
-            <div class="panel"><button class="btn btn-green" onclick="openModal('addCatModal')">+ قسم</button><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($categories as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><button class="btn btn-green" onclick="openModal('addCatModal')">+ قسم</button><table class="admin-table"><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($categories as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" class="admin-form-inline" onsubmit="return confirm('حذف؟');"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <div id="tab-admins" class="tab-content">
-            <div class="panel"><h3>إضافة مشرف</h3><form method="POST" style="display:flex; gap:10px; margin-bottom:20px;"><input type="email" name="new_admin_email" placeholder="البريد" required><input type="text" name="new_admin_pass" placeholder="كلمة المرور" required><button name="add_admin" class="btn btn-blue">إضافة</button></form><h3>المشرفين</h3><table><thead><tr><th>ID</th><th>البريد</th><th>الصلاحية</th><th>تحكم</th></tr></thead><tbody><?php foreach($adminList as $adm): ?><tr><td data-label="ID"><?= htmlspecialchars($adm['id']) ?></td><td data-label="البريد"><?= htmlspecialchars($adm['email']) ?></td><td data-label="الصلاحية"><?= $adm['is_super'] == 1 ? '<span style="color:green;font-weight:bold;">عام</span>' : 'عادي' ?></td><td data-label="تحكم"><?php if($isSuperAdmin && $adm['id'] != $_SESSION['admin_id']): ?><form method="POST" onsubmit="return confirm('حذف؟');"><input type="hidden" name="admin_id_del" value="<?= $adm['id'] ?>"><button name="delete_admin" class="btn btn-red">حذف</button></form><?php else: echo '--'; endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3 class="admin-h3">إضافة مشرف</h3><form method="POST" style="display:flex; gap:10px; margin-bottom:20px;"><input type="email" name="new_admin_email" placeholder="البريد" class="admin-input" required><input type="text" name="new_admin_pass" placeholder="كلمة المرور" class="admin-input" required><button name="add_admin" class="btn btn-blue">إضافة</button></form><h3 class="admin-h3">المشرفين</h3><table class="admin-table"><thead><tr><th>ID</th><th>البريد</th><th>الصلاحية</th><th>تحكم</th></tr></thead><tbody><?php foreach($adminList as $adm): ?><tr><td data-label="ID"><?= htmlspecialchars($adm['id']) ?></td><td data-label="البريد"><?= htmlspecialchars($adm['email']) ?></td><td data-label="الصلاحية"><?= $adm['is_super'] == 1 ? '<span style="color:green;font-weight:bold;">عام</span>' : 'عادي' ?></td><td data-label="تحكم"><?php if($isSuperAdmin && $adm['id'] != $_SESSION['admin_id']): ?><form method="POST" onsubmit="return confirm('حذف؟');"><input type="hidden" name="admin_id_del" value="<?= $adm['id'] ?>"><button name="delete_admin" class="btn btn-red">حذف</button></form><?php else: echo '--'; endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <!-- 5. تبويب قائمة المشتريات (للتجار) -->
         <div id="tab-procurement" class="tab-content">
             <div class="panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>🛒 قائمة التجهيز (حسب المورد)</h3>
+                <div class="panel-header">
+                    <h3 class="admin-h3">🛒 قائمة التجهيز (حسب المورد)</h3>
                     <button onclick="window.print()" class="btn btn-blue">طباعة القائمة</button>
                 </div>
                 <?php
@@ -239,27 +198,27 @@ if ($searchQuery) {
                 $procStmt = $pdo->query($procSql);
                 $procList = $procStmt->fetchAll(PDO::FETCH_GROUP);
                 ?>
-                <div class="table-responsive">
+                <div class="admin-table-responsive">
                     <?php if(count($procList) > 0): ?>
                         <?php foreach($procList as $supplier => $items): ?>
-                            <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                                <div style="background:#1a2a3a; color:#fff; padding:10px; font-weight:bold;">
+                            <div class="procurement-supplier-block">
+                                <div class="procurement-supplier-header">
                                     🏪 المورد: <?= htmlspecialchars($supplier ? $supplier : 'غير محدد') ?>
                                 </div>
-                                <table style="width:100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden;">
-                                    <thead >
-                                        <tr style="background:#f9f9f9; border-bottom:2px solid #eee;">
-                                            <th style="color:#333; background:#eee;">المنتج</th>
-                                            <th style="color:#333; background:#eee;">المقاس</th>
-                                            <th style="color:#333; background:#eee;">العدد المطلوب</th>
+                                <table class="procurement-table">
+                                    <thead>
+                                        <tr>
+                                            <th>المنتج</th>
+                                            <th>المقاس</th>
+                                            <th>العدد المطلوب</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach($items as $item): ?>
-                                        <tr style="border-bottom:1px solid #eee;">
-                                            <td data-label="المنتج" style="padding:10px; font-weight:bold; color:#1a2a3a;"><?= htmlspecialchars($item['product_name']) ?></td>
-                                            <td data-label="المقاس" style=" padding:10px; color:#d00000; font-weight:bold;"><?= htmlspecialchars($item['size'] ? $item['size'] : '-') ?></td>
-                                            <td data-label="العدد المطلوب" style="padding:10px; font-size:1.1rem; font-weight:900;" ><?= htmlspecialchars($item['total_qty_needed']) ?></td>
+                                        <tr>
+                                            <td data-label="المنتج" class="product-name"><?= htmlspecialchars($item['product_name']) ?></td>
+                                            <td data-label="المقاس" class="size"><?= htmlspecialchars($item['size'] ? $item['size'] : '-') ?></td>
+                                            <td data-label="العدد المطلوب" class="quantity"><?= htmlspecialchars($item['total_qty_needed']) ?></td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -275,95 +234,44 @@ if ($searchQuery) {
     <?php endif; ?>
 </div>
 
-<div id="addCatModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('addCatModal')">&times;</span><h3>إضافة قسم</h3><form method="POST"><label>اسم القسم</label><input type="text" name="cat_name" required><button name="add_category" class="btn btn-green" style="margin-top:10px; width:100%;">حفظ</button></form></div></div>
-<div id="editCatModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('editCatModal')">&times;</span><h3>تعديل قسم</h3><form method="POST"><input type="hidden" name="cat_id" id="edit_cat_id"><label>اسم القسم</label><input type="text" name="cat_name" id="edit_cat_name" required><button name="update_category" class="btn btn-orange" style="margin-top:10px; width:100%;">تحديث</button></form></div></div>
+<div id="addCatModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('addCatModal')">&times;</span><h3 class="admin-h3">إضافة قسم</h3><form method="POST"><label class="admin-label">اسم القسم</label><input type="text" name="cat_name" class="admin-input" required><button name="add_category" class="btn btn-green" style="margin-top:10px; width:100%;">حفظ</button></form></div></div>
+<div id="editCatModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal('editCatModal')">&times;</span><h3 class="admin-h3">تعديل قسم</h3><form method="POST"><input type="hidden" name="cat_id" id="edit_cat_id"><label class="admin-label">اسم القسم</label><input type="text" name="cat_name" id="edit_cat_name" class="admin-input" required><button name="update_category" class="btn btn-orange" style="margin-top:10px; width:100%;">تحديث</button></form></div></div>
 
 <div id="addProdModal" class="modal">
-    <div class="modal-content"><span class="close" onclick="closeModal('addProdModal')">&times;</span><h3>إضافة منتج</h3>
+    <div class="modal-content"><span class="close" onclick="closeModal('addProdModal')">&times;</span><h3 class="admin-h3">إضافة منتج</h3>
     <form method="POST" enctype="multipart/form-data" onsubmit="return validatePrice(this)">
-        <label>القسم</label><select name="category" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
-        <label>اسم المنتج</label><input type="text" name="name" required placeholder="اسم المنتج">
-        <label>الوصف</label><textarea name="description" placeholder="وصف المنتج للزبون" style="height:60px;"></textarea>
-        <label>المقاسات (اختياري)</label><input type="text" name="sizes" placeholder="مثال: S,M,L">
-        <label>صورة المنتج</label><input type="file" name="image" required>
-        <label>اسم المورد (للتجار)</label><input type="text" name="supplier" placeholder="مثال: محلات الأمل بالجملة">
-        <label>السعر الرسمي</label><input type="number" name="price" required placeholder="السعر">
-        <label>سعر بعد الخصم (اختياري)</label><input type="number" name="discount" placeholder="اتركه فارغاً إذا لا يوجد خصم">
-        <label>الكمية المتوفرة</label><input type="number" name="qty" placeholder="اتركه فارغاً إذا الكمية مفتوحة">
-        <label>ملاحظة للمشرف (سرية)</label><textarea name="note" placeholder="لن تظهر للزبون"></textarea>
+        <label class="admin-label">القسم</label><select name="category" class="admin-select" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
+        <label class="admin-label">اسم المنتج</label><input type="text" name="name" class="admin-input" required placeholder="اسم المنتج">
+        <label class="admin-label">الوصف</label><textarea name="description" class="admin-textarea" placeholder="وصف المنتج للزبون" style="height:60px;"></textarea>
+        <label class="admin-label">المقاسات (اختياري)</label><input type="text" name="sizes" class="admin-input" placeholder="مثال: S,M,L">
+        <label class="admin-label">صورة المنتج</label><input type="file" name="image" class="admin-input" required>
+        <label class="admin-label">اسم المورد (للتجار)</label><input type="text" name="supplier" class="admin-input" placeholder="مثال: محلات الأمل بالجملة">
+        <label class="admin-label">السعر الرسمي</label><input type="number" name="price" class="admin-input" required placeholder="السعر">
+        <label class="admin-label">سعر بعد الخصم (اختياري)</label><input type="number" name="discount" class="admin-input" placeholder="اتركه فارغاً إذا لا يوجد خصم">
+        <label class="admin-label">الكمية المتوفرة</label><input type="number" name="qty" class="admin-input" placeholder="اتركه فارغاً إذا الكمية مفتوحة">
+        <label class="admin-label">ملاحظة للمشرف (سرية)</label><textarea name="note" class="admin-textarea" placeholder="لن تظهر للزبون"></textarea>
         <button name="add_product" class="btn btn-green" style="margin-top:10px; width:100%;">نشر المنتج</button>
     </form></div>
 </div>
 
 <div id="editProdModal" class="modal">
-    <div class="modal-content"><span class="close" onclick="closeModal('editProdModal')">&times;</span><h3>تعديل منتج</h3>
+    <div class="modal-content"><span class="close" onclick="closeModal('editProdModal')">&times;</span><h3 class="admin-h3">تعديل منتج</h3>
     <form method="POST" enctype="multipart/form-data" onsubmit="return validatePrice(this)">
         <input type="hidden" name="prod_id" id="edit_prod_id">
-        <label>القسم</label><select name="category" id="edit_prod_cat" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
-        <label>اسم المنتج</label><input type="text" name="name" id="edit_prod_name" required>
-        <label>الوصف</label><textarea name="description" id="edit_prod_desc" style="height:60px;"></textarea>
-        <label>المقاسات</label><input type="text" name="sizes" id="edit_prod_sizes">
-        <label>تغيير الصورة</label><input type="file" name="image">
-        <label>اسم المورد (للتجار)</label><input type="text" name="supplier" id="edit_prod_supplier">
-        <label>السعر الرسمي</label><input type="number" name="price" id="edit_prod_price" required>
-        <label>سعر بعد الخصم</label><input type="number" name="discount" id="edit_prod_disc">
-        <label>الكمية</label><input type="number" name="qty" id="edit_prod_qty">
-        <label>ملاحظة للمشرف</label><textarea name="note" id="edit_prod_note"></textarea>
+        <label class="admin-label">القسم</label><select name="category" id="edit_prod_cat" class="admin-select" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
+        <label class="admin-label">اسم المنتج</label><input type="text" name="name" id="edit_prod_name" class="admin-input" required>
+        <label class="admin-label">الوصف</label><textarea name="description" id="edit_prod_desc" class="admin-textarea" style="height:60px;"></textarea>
+        <label class="admin-label">المقاسات</label><input type="text" name="sizes" id="edit_prod_sizes" class="admin-input">
+        <label class="admin-label">تغيير الصورة</label><input type="file" name="image" class="admin-input">
+        <label class="admin-label">اسم المورد (للتجار)</label><input type="text" name="supplier" id="edit_prod_supplier" class="admin-input">
+        <label class="admin-label">السعر الرسمي</label><input type="number" name="price" id="edit_prod_price" class="admin-input" required>
+        <label class="admin-label">سعر بعد الخصم</label><input type="number" name="discount" id="edit_prod_disc" class="admin-input">
+        <label class="admin-label">الكمية</label><input type="number" name="qty" id="edit_prod_qty" class="admin-input">
+        <label class="admin-label">ملاحظة للمشرف</label><textarea name="note" id="edit_prod_note" class="admin-textarea"></textarea>
         <button name="update_product" class="btn btn-orange" style="margin-top:10px; width:100%;">حفظ التعديلات</button>
     </form></div>
 </div>
 
-<script>
-    function openTab(evt, name) {
-        var i, x = document.getElementsByClassName("tab-content"), b = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < x.length; i++) x[i].style.display = "none";
-        for (i = 0; i < b.length; i++) b[i].className = b[i].className.replace(" active", "");
-        document.getElementById(name).style.display = "block";
-        if(evt) evt.currentTarget.className += " active";
-        const url = new URL(window.location); url.searchParams.set('tab', name); window.history.pushState({}, '', url);
-    }
-
-    // الحل النهائي لمشكلة العودة للتبويب الصحيح
-    window.onload = function() {
-        const t = new URLSearchParams(window.location.search).get('tab');
-        if(t) {
-            // نستخدم معرفات ID للأزرار لضمان دقة الاختيار
-            let btnId = '';
-            if(t === 'tab-orders') btnId = 'btn-orders';
-            else if(t === 'tab-products') btnId = 'btn-products';
-            else if(t === 'tab-cats') btnId = 'btn-cats';
-            else if(t === 'tab-admins') btnId = 'btn-admins';
-            else if(t === 'tab-procurement') btnId = 'btn-procurement';
-
-            if(btnId) { document.getElementById(btnId).click(); }
-        }
-    };
-
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function openEditCat(c) { document.getElementById('edit_cat_id').value=c.id; document.getElementById('edit_cat_name').value=c.name; openModal('editCatModal'); }
-
-    function openEditProd(p) {
-        document.getElementById('edit_prod_id').value=p.id;
-        document.getElementById('edit_prod_name').value=p.name;
-        document.getElementById('edit_prod_desc').value=p.description;
-        document.getElementById('edit_prod_sizes').value=p.sizes;
-        document.getElementById('edit_prod_price').value=p.price;
-        document.getElementById('edit_prod_disc').value=p.discount_price;
-        document.getElementById('edit_prod_qty').value=p.quantity;
-        document.getElementById('edit_prod_note').value=p.admin_note;
-        document.getElementById('edit_prod_cat').value=p.category_id;
-        document.getElementById('edit_prod_supplier').value=p.supplier;
-        openModal('editProdModal');
-    }
-
-    function validatePrice(form) {
-        let price = parseFloat(form.querySelector('input[name="price"]').value);
-        let discIn = form.querySelector('input[name="discount"]').value;
-        if(discIn.trim() !== "") { if(parseFloat(discIn) >= price) { alert("تنبيه: سعر الخصم يجب أن يكون أقل من السعر الرسمي!"); return false; } }
-        return true;
-    }
-    window.onclick = function(event) { if (event.target.classList.contains('modal')) event.target.style.display = 'none'; }
-</script>
+<script src="admin.js"></script>
 </body>
 </html>

@@ -20,14 +20,6 @@ $stmt->execute([$user_session]);
     <title>مفضلاتي - متجر سام</title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.min.css">
-    <!-- انسخ نفس الستايل الخاص بالشبكة products-grid هنا -->
-    <style>
-         .products-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px; }
-         .product-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); padding: 6px; display: flex; flex-direction: column; justify-content: space-between; width: calc(50% - 8px); box-sizing: border-box; margin-bottom: 5px; position: relative;}
-         .product-card img { width: 100%; height: 130px; object-fit: contain; background-color: #fff; border-radius: 4px; padding: 2px; box-sizing: border-box; margin-bottom: 5px; border: 1px solid #f9f9f9; }
-         .btn-add { background: #28a745; color: #fff; border: none; padding: 6px; width: 100%; cursor: pointer; border-radius: 4px; font-size: 0.9rem; margin-top: auto; }
-         @media (min-width: 768px) { .products-grid { gap: 15px; justify-content: flex-start; } .product-card { width: 200px; padding: 10px; } .product-card img { height: 160px; } }
-    </style>
 </head>
 <body>
     <header>
@@ -36,7 +28,7 @@ $stmt->execute([$user_session]);
             <span class="logo-text-sam">SAM</span>
         </a>
         <h1>❤️ منتجاتي المفضلة</h1>
-        <a href="index.php" class="btn-back" style="display:inline-block; margin-top:10px;">عودة للرئيسية</a>
+        <a href="index.php" class="btn-back">عودة للرئيسية</a>
     </header>
 
     <div class="container">
@@ -70,8 +62,8 @@ $stmt->execute([$user_session]);
 
 
                     <?php else: ?>
-                        <p style="color:red; font-size:0.8em; font-weight:bold;">نفذت الكمية</p>
-                        <button class="btn-add" disabled style="background:#ccc;">غير متوفر</button>
+                        <p class="out-of-stock-message">نفذت الكمية</p>
+                        <button class="btn-add" disabled>غير متوفر</button>
                     <?php endif; ?>
 
 
@@ -81,7 +73,7 @@ $stmt->execute([$user_session]);
             <?php endwhile; ?>
 
             <?php if(!$hasItems): ?>
-                <p style="text-align:center; width:100%; padding:50px; color:#777;">لم تضف أي منتج للمفضلة بعد.</p>
+                <p class="empty-message">لم تضف أي منتج للمفضلة بعد.</p>
             <?php endif; ?>
         </div>
     </div>
@@ -103,5 +95,6 @@ $stmt->execute([$user_session]);
 
         // ... (ضع هنا دوال الإضافة للسلة كما في الصفحات الأخرى) ...
     </script>
+    <script src="script.js"></script>
 </body>
 </html>

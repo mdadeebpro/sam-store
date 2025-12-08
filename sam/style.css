@@ -844,3 +844,584 @@ th { background-color: #333; color: #fff; }
     border-bottom-left-radius: 0;
     /* باقي التنسيق يبقى كما هو */
 }
+/* ================= 12. Admin Panel Styles (From inline styles) ================= */
+
+/* General Body */
+.admin-body {
+    font-family: 'Almarai', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 10px;
+    color: #333;
+    direction: rtl;
+}
+
+/* Main Container */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Typography */
+.admin-h1, .admin-h2, .admin-h3 {
+    margin: 0;
+    color: #1a2a3a;
+}
+
+.admin-h2 {
+    color: #1a2a3a;
+}
+
+/* Header Section */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Tabs Navigation */
+.tabs-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    scrollbar-width: none; /* Firefox */
+}
+.tabs-nav::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    font-weight: bold;
+    color: #555;
+    transition: 0.2s;
+}
+
+.tab-btn.active {
+    background: #1a2a3a;
+    color: #fff;
+    border-color: #1a2a3a;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* Panels */
+.panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    margin-bottom: 20px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin: 2px;
+}
+.btn-green { background: #28a745; }
+.btn-orange { background: #fd7e14; }
+.btn-red { background: #dc3545; }
+.btn-blue { background: #007bff; }
+
+/* Forms */
+.admin-input, .admin-select, .admin-textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #1a2a3a;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.admin-form-inline {
+    display: inline;
+}
+
+/* Tables */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed;
+}
+.admin-table th, .admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+}
+.admin-table th {
+    background: #1a2a3a;
+    color: #fff;
+}
+.admin-table .thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+.admin-table-responsive {
+    display: block;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.close {
+    float: left;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Labels */
+.admin-label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .admin-header {
+        flex-direction: column-reverse;
+        gap: 10px;
+        align-items: center !important;
+    }
+    .admin-header .admin-h2 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+    .admin-header .btn-red {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+    .admin-table, .admin-table thead, .admin-table tbody, .admin-table th, .admin-table td, .admin-table tr {
+        display: block;
+    }
+    .admin-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    .admin-table tr {
+        background: #fff;
+        margin-bottom: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+        padding: 15px;
+    }
+    .admin-table td {
+        border: none;
+        border-bottom: 1px dashed #eee;
+        padding: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+    .admin-table td:last-child {
+        border-bottom: none;
+    }
+    .admin-table td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #777;
+        margin-left: 10px;
+        white-space: nowrap;
+    }
+    .admin-table td[data-label=المنتجات], .admin-table td[data-label=العميل] {
+        display: block;
+        text-align: right;
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 5px;
+        line-height: 1.8;
+    }
+    .admin-table td[data-label=المنتجات]:before, .admin-table td[data-label=العميل]:before {
+        display: block;
+        margin-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+        width: 100%;
+    }
+    .admin-table td[data-label=صورة] {
+        justify-content: center;
+        border-bottom: none;
+    }
+    .admin-table td[data-label=صورة]:before {
+        display: none;
+    }
+    .admin-table td[data-label=المنتج] {
+        display: block;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    .admin-table td[data-label=المنتج]:before {
+        display: none;
+    }
+    .admin-table td[data-label=تحكم] {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    .admin-table td[data-label=تحكم]:before {
+        display: none;
+    }
+    .admin-table td[data-label=تحكم] button, .admin-table td[data-label=تحكم] form {
+        flex: 1;
+        width: 100%;
+    }
+    .admin-table .btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+    .admin-table td[data-label=الحالة] {
+        display: block;
+        text-align: right;
+    }
+    .admin-table td[data-label=الحالة] select {
+        width: 100%;
+        margin-top: 5px;
+        padding: 10px;
+    }
+}
+
+/* Procurement Table Styles */
+.procurement-supplier-block {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.procurement-supplier-header {
+    background: #1a2a3a;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+}
+.procurement-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.procurement-table thead tr {
+    background: #f9f9f9;
+    border-bottom: 2px solid #eee;
+}
+.procurement-table th {
+    color: #333;
+    background: #eee;
+}
+.procurement-table tr {
+    border-bottom: 1px solid #eee;
+}
+.procurement-table td {
+    padding: 10px;
+}
+.procurement-table .product-name {
+    font-weight: bold;
+    color: #1a2a3a;
+}
+.procurement-table .size {
+    color: #d00000;
+    font-weight: bold;
+}
+.procurement-table .quantity {
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+
+/* ================= 13. Category & Modal Styles (From inline styles) ================= */
+
+/* Category Page Header */
+.category-title {
+    color: #1a2a3a;
+    margin-top: 10px;
+}
+
+/* Spacer Div */
+.spacer-20 {
+    height: 20px;
+}
+
+/* Empty State Message */
+.empty-message {
+    text-align: center;
+    padding: 50px;
+    color: #777;
+}
+
+/* Modal Specifics */
+.modal-title {
+    text-align: center;
+}
+
+.modal-footer {
+    margin-top: auto;
+}
+
+.form-group-relative {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.input-with-icon {
+    padding-left: 45px !important;
+    margin-bottom: 0 !important;
+}
+
+.location-btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    border: none;
+    background: #e9ecef;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    color: #d00000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.location-btn i {
+    font-size: 1.2rem;
+}
+
+.form-hint {
+    display: block;
+    color: #777;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+}
+
+.notes-textarea {
+    height: 50px;
+    resize: none;
+    font-family: 'Almarai', sans-serif;
+}
+
+.btn-checkout {
+    background: #1a2a3a;
+    margin-top: 10px;
+    padding: 12px;
+}
+
+/* Size Modal */
+.size-modal-content {
+    text-align: center;
+    padding-top: 30px;
+    height: auto;
+}
+
+.sizes-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+
+/* Out of Stock Message */
+.out-of-stock-message {
+    color: red;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.btn-add:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+}
+
+
+/* ================= 14. Track Page Styles (From inline styles) ================= */
+
+.track-box {
+    background: #fff;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.status-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.st-new { color: #555; }
+.st-processing { color: #e67e22; }
+.st-shipping { color: #3498db; }
+.st-delivered { color: #27ae60; }
+.st-canceled { color: #c0392b; }
+
+.track-divider {
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px dashed #ddd;
+}
+
+.track-result-box {
+    border: 2px solid #eee;
+}
+
+.error-message {
+    color: red;
+}
+
+
+/* ================= 15. Index Page & Invoice Styles (From inline styles) ================= */
+
+/* Invoice Area */
+#invoice-area {
+    display: none;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #333;
+    width: 500px;
+    font-family: 'Almarai', sans-serif;
+}
+
+.invoice-header {
+    text-align: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.invoice-subtitle {
+    margin: 0;
+    color: #777;
+}
+
+.invoice-id {
+    margin: 0;
+    font-weight: bold;
+    color: #d00000;
+}
+
+.invoice-details {
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.invoice-detail-item {
+    margin: 5px 0;
+}
+
+.invoice-table {
+    border-collapse: collapse;
+    text-align: center;
+    border-color: #eee;
+    width: 100%;
+}
+
+.invoice-table-header {
+    background: #f9f9f9;
+}
+
+.invoice-table-header-cell {
+    padding: 8px;
+}
+
+.invoice-total-section {
+    text-align: left;
+    margin-top: 15px;
+}
+
+.invoice-total-amount {
+    color: #d00000;
+}
+
+.invoice-notes {
+    color: red;
+    font-weight: bold;
+}
+
+/* Size Modal */
+.size-modal-content {
+    text-align: center;
+    padding-top: 30px;
+}
