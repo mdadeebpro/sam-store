@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تتبع طلبك - متجر سام</title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.min.css">
     <style>
         .track-box {
             background: #fff;
@@ -37,7 +37,7 @@
     </header>
 
     <div class="container">
-        
+
         <!-- نموذج البحث -->
         <div class="track-box">
             <form method="GET">
@@ -69,14 +69,14 @@
                 ];
                 $current = $info[$st];
                 ?>
-                
+
                 <div class="track-box" style="border: 2px solid #eee;">
                     <span class="status-icon"><?= $current['icon'] ?></span>
-                    <h3 class="<?= $current['class'] ?>"><?= $current['text'] ?></h3>
+                    <h3 class="<?= $current['class'] ?>"><?= htmlspecialchars($current['text']) ?></h3>
                     <hr style="margin:15px 0; border:0; border-top:1px dashed #ddd;">
-                    <p><strong>العميل:</strong> <?= $order['customer_name'] ?></p>
+                    <p><strong>العميل:</strong> <?= htmlspecialchars($order['customer_name']) ?></p>
                     <p><strong>تاريخ الطلب:</strong> <?= date('Y-m-d', strtotime($order['created_at'])) ?></p>
-                    <p><strong>الإجمالي:</strong> <?= $order['total_amount'] ?> ر.ي</p>
+                    <p><strong>الإجمالي:</strong> <?= htmlspecialchars($order['total_amount']) ?> ر.ي</p>
                 </div>
 
                 <?php

@@ -1,5 +1,6 @@
 <?php
 include 'db.php';
+include 'functions.php';
 
 // === 1. إعدادات السيرفر ===
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -17,7 +18,7 @@ if (!isset($_SESSION['admin_id'])) {
         if ($admin && password_verify($pass, $admin['password'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_email'] = $admin['email'];
-            
+
             // --- التعديل الجديد: حفظ الصلاحية في الجلسة ---
             $_SESSION['is_super'] = $admin['is_super']; // 1 or 0
             // ----------------------------------------------
@@ -49,21 +50,37 @@ if (isset($_POST['update_category'])) { $pdo->prepare("UPDATE categories SET nam
 
 if (isset($_POST['add_product'])) {
     $name=$_POST['name']; $desc=$_POST['description']; $supplier=!empty($_POST['supplier'])?$_POST['supplier']:'غير محدد';
-    $price=$_POST['price']; $qty=$_POST['qty']!==''?$_POST['qty']:null; $disc=!empty($_POST['discount'])?$_POST['discount']:null; 
+    $price=$_POST['price']; $qty=$_POST['qty']!==''?$_POST['qty']:null; $disc=!empty($_POST['discount'])?$_POST['discount']:null;
     $cat=$_POST['category']; $note=$_POST['note']; $sizes=!empty($_POST['sizes'])?$_POST['sizes']:null;
     if ($disc!==null && $disc>=$price) { echo "<script>alert('خطأ: سعر الخصم أكبر من الرسمي');window.history.back();</script>"; exit; }
-    $imgName=time().'_'.$_FILES['image']['name']; move_uploaded_file($_FILES['image']['tmp_name'],'uploads/'.$imgName);
+
+    // --- Image Optimization Integration ---
+    $imgName = time() . '_' . basename($_FILES['image']['name']);
+    $targetPath = 'uploads/' . $imgName;
+    if (!optimizeImage($_FILES['image']['tmp_name'], $targetPath)) {
+        echo "<script>alert('خطأ في رفع الصورة');window.history.back();</script>";
+        exit;
+    }
+    // ------------------------------------
+
     $pdo->prepare("INSERT INTO products (name,description,supplier,sizes,category_id,price,discount_price,quantity,image,admin_note) VALUES (?,?,?,?,?,?,?,?,?,?)")->execute([$name,$desc,$supplier,$sizes,$cat,$price,$disc,$qty,$imgName,$note]);
     header("Location: admin.php?tab=tab-products&t=".time()); exit;
 }
 if (isset($_POST['delete_product'])) { $pdo->prepare("DELETE FROM products WHERE id = ?")->execute([$_POST['prod_id']]); header("Location: admin.php?tab=tab-products&t=".time()); exit; }
 if (isset($_POST['update_product'])) {
     $id=$_POST['prod_id']; $name=$_POST['name']; $desc=$_POST['description']; $supplier=!empty($_POST['supplier'])?$_POST['supplier']:'غير محدد';
-    $price=$_POST['price']; $qty=$_POST['qty']!==''?$_POST['qty']:null; $disc=!empty($_POST['discount'])?$_POST['discount']:null; 
+    $price=$_POST['price']; $qty=$_POST['qty']!==''?$_POST['qty']:null; $disc=!empty($_POST['discount'])?$_POST['discount']:null;
     $cat=$_POST['category']; $note=$_POST['note']; $sizes=!empty($_POST['sizes'])?$_POST['sizes']:null;
     if ($disc!==null && $disc>=$price) { echo "<script>alert('خطأ: سعر الخصم أكبر من الرسمي');window.history.back();</script>"; exit; }
     if (!empty($_FILES['image']['name'])) {
-        $imgName=time().'_'.$_FILES['image']['name']; move_uploaded_file($_FILES['image']['tmp_name'],'uploads/'.$imgName);
+        // --- Image Optimization Integration ---
+        $imgName = time() . '_' . basename($_FILES['image']['name']);
+        $targetPath = 'uploads/' . $imgName;
+        if (!optimizeImage($_FILES['image']['tmp_name'], $targetPath)) {
+            echo "<script>alert('خطأ في رفع الصورة');window.history.back();</script>";
+            exit;
+        }
+        // ------------------------------------
         $pdo->prepare("UPDATE products SET name=?,description=?,supplier=?,sizes=?,category_id=?,price=?,discount_price=?,quantity=?,admin_note=?,image=? WHERE id=?")->execute([$name,$desc,$supplier,$sizes,$cat,$price,$disc,$qty,$note,$imgName,$id]);
     } else {
         $pdo->prepare("UPDATE products SET name=?,description=?,supplier=?,sizes=?,category_id=?,price=?,discount_price=?,quantity=?,admin_note=? WHERE id=?")->execute([$name,$desc,$supplier,$sizes,$cat,$price,$disc,$qty,$note,$id]);
@@ -74,13 +91,13 @@ if (isset($_POST['update_product'])) {
 if (isset($_POST['add_admin'])) { $pdo->prepare("INSERT INTO admins (email,password,must_change_password) VALUES (?,?,1)")->execute([$_POST['new_admin_email'],password_hash($_POST['new_admin_pass'], PASSWORD_BCRYPT)]); header("Location: admin.php?tab=tab-admins&t=".time()); exit; }
 
 // --- حذف مشرف (يعتمد على الصلاحية في قاعدة البيانات) ---
-if (isset($_POST['delete_admin']) && $isSuperAdmin) { 
-    $delId = $_POST['admin_id_del']; 
+if (isset($_POST['delete_admin']) && $isSuperAdmin) {
+    $delId = $_POST['admin_id_del'];
     // لا يمكن للمشرف حذف نفسه
-    if ($delId != $_SESSION['admin_id']) { 
-        $pdo->prepare("DELETE FROM admins WHERE id = ?")->execute([$delId]); 
-    } 
-    header("Location: admin.php?tab=tab-admins&t=".time()); exit; 
+    if ($delId != $_SESSION['admin_id']) {
+        $pdo->prepare("DELETE FROM admins WHERE id = ?")->execute([$delId]);
+    }
+    header("Location: admin.php?tab=tab-admins&t=".time()); exit;
 }
 
 // === 4. جلب البيانات ===
@@ -172,13 +189,13 @@ if ($searchQuery) {
     <?php if ($searchQuery): ?>
         <!-- نتائج البحث -->
         <?php if (count($searchProds) > 0): ?>
-            <div class="panel"><h3>نتائج المنتجات</h3><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchProds as $prod): ?><tr><td data-label="صورة"><img src="uploads/<?= $prod['image'] ?>" class="thumb"></td><td data-label="المنتج"><b><?= $prod['name'] ?></b></td><td data-label="السعر"><?= $prod['price'] ?></td><td data-label="القسم"><?= $prod['cat_name'] ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3>نتائج المنتجات</h3><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchProds as $prod): ?><tr><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b></td><td data-label="السعر"><?= htmlspecialchars($prod['price']) ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
         <?php if (count($searchCats) > 0): ?>
-            <div class="panel"><h3>نتائج الأقسام</h3><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchCats as $cat): ?><tr><td data-label="ID"><?= $cat['id'] ?></td><td data-label="الاسم"><?= $cat['name'] ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3>نتائج الأقسام</h3><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($searchCats as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm("حذف؟");"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
         <?php if (count($searchOrds) > 0): ?>
-            <div class="panel"><h3>نتائج الطلبات</h3><table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php foreach($searchOrds as $ord): ?><tr><td data-label="رقم">#<?= $ord['id'] ?></td><td data-label="العميل"><?= $ord['customer_name'] ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي"><?= $ord['total_amount'] ?></td><td data-label="الحالة"><?= $ord['status'] ?></td><td data-label="التاريخ"><?= $ord['created_at'] ?></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3>نتائج الطلبات</h3><table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php foreach($searchOrds as $ord): ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?></td><td data-label="العميل"><?= htmlspecialchars($ord['customer_name']) ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><?= htmlspecialchars($ord['status']) ?></td><td data-label="التاريخ"><?= htmlspecialchars($ord['created_at']) ?></td></tr><?php endforeach; ?></tbody></table></div>
         <?php endif; ?>
         <?php if (count($searchProds)==0 && count($searchCats)==0 && count($searchOrds)==0): ?><div class="panel" style="text-align:center;"><h3>لا توجد نتائج</h3></div><?php endif; ?>
 
@@ -194,20 +211,20 @@ if ($searchQuery) {
         <div id="tab-orders" class="tab-content active">
             <div class="panel">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>سجل الطلبات</h3><form method="POST" onsubmit="return confirm('تفريغ؟');"><button name="delete_all_orders" class="btn btn-red">🗑️ تفريغ</button></form></div>
-                <table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php $stArr=['new'=>['جديد','#333'],'processing'=>['تجهيز','#e67e22'],'shipping'=>['توصيل','#3498db'],'delivered'=>['تم','#27ae60'],'canceled'=>['ملغي','#c0392b']]; foreach($orders as $ord): $k=$ord['status']?:'new'; ?><tr><td data-label="رقم">#<?= $ord['id'] ?><br><small><?= $ord['invoice_code'] ?></small></td><td data-label="العميل"><b><?= $ord['customer_name'] ?></b><br><small><?= $ord['customer_phone'] ?></small><br><small><?= $ord['address'] ?></small><?php if($ord['notes']) echo "<br><small style='color:red'>📝 {$ord['notes']}</small>"; ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي" style="color:green;font-weight:bold;"><?= $ord['total_amount'] ?></td><td data-label="الحالة"><form method="POST"><input type="hidden" name="order_id" value="<?= $ord['id'] ?>"><select name="status" onchange="this.form.submit()" style="background:<?= $stArr[$k][1] ?>;color:#fff;border:none;font-weight:bold;padding:5px;"><?php foreach($stArr as $x=>$y): ?><option value="<?= $x ?>" <?= $k==$x?'selected':'' ?> style="background:#fff;color:#000;"><?= $y[0] ?></option><?php endforeach; ?></select><input type="hidden" name="update_order_status" value="1"></form></td><td data-label="التاريخ"><?= date('Y-m-d', strtotime($ord['created_at'])) ?></td></tr><?php endforeach; ?></tbody></table>
+                <table><thead><tr><th>رقم</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody><?php $stArr=['new'=>['جديد','#333'],'processing'=>['تجهيز','#e67e22'],'shipping'=>['توصيل','#3498db'],'delivered'=>['تم','#27ae60'],'canceled'=>['ملغي','#c0392b']]; foreach($orders as $ord): $k=$ord['status']?:'new'; ?><tr><td data-label="رقم">#<?= htmlspecialchars($ord['id']) ?><br><small><?= htmlspecialchars($ord['invoice_code']) ?></small></td><td data-label="العميل"><b><?= htmlspecialchars($ord['customer_name']) ?></b><br><small><?= htmlspecialchars($ord['customer_phone']) ?></small><br><small><?= htmlspecialchars($ord['address']) ?></small><?php if($ord['notes']) echo "<br><small style='color:red'>📝" . htmlspecialchars($ord['notes']) . "</small>"; ?></td><td data-label="المنتجات"><?= $ord['items_summary'] ?></td><td data-label="الإجمالي" style="color:green;font-weight:bold;"><?= htmlspecialchars($ord['total_amount']) ?></td><td data-label="الحالة"><form method="POST"><input type="hidden" name="order_id" value="<?= $ord['id'] ?>"><select name="status" onchange="this.form.submit()" style="background:<?= $stArr[$k][1] ?>;color:#fff;border:none;font-weight:bold;padding:5px;"><?php foreach($stArr as $x=>$y): ?><option value="<?= $x ?>" <?= $k==$x?'selected':'' ?> style="background:#fff;color:#000;"><?= $y[0] ?></option><?php endforeach; ?></select><input type="hidden" name="update_order_status" value="1"></form></td><td data-label="التاريخ"><?= date('Y-m-d', strtotime($ord['created_at'])) ?></td></tr><?php endforeach; ?></tbody></table>
             </div>
         </div>
 
         <div id="tab-products" class="tab-content">
-            <div class="panel"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>المنتجات</h3><button class="btn btn-green" onclick="openModal('addProdModal')">+ منتج</button></div><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($products as $prod): $sTxt="∞"; $bg=""; if($prod['quantity']!==null){ $n=$prod['quantity']-$prod['total_reserved']; if($n<=0){$sTxt="🚫 نفذت";$bg="background:#fff0f0";} elseif($n<5){$sTxt="⚠️ $n";$bg="background:#fffbe6";} else{$sTxt="✅ $n";} } ?><tr style="<?= $bg ?>"><td data-label="صورة"><img src="uploads/<?= $prod['image'] ?>" class="thumb"></td><td data-label="المنتج"><b><?= $prod['name'] ?></b><?php if($prod['admin_note']) echo "<br><small style='color:red'>📝 {$prod['admin_note']}</small>"; ?></td><td data-label="السعر"><?php if($prod['discount_price']): ?><s><?= $prod['price'] ?></s> <b style="color:#d00000"><?= $prod['discount_price'] ?></b><?php else: echo $prod['price']; endif; ?></td><td data-label="المخزون"><?= $sTxt ?></td><td data-label="القسم"><?= $prod['cat_name'] ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><div style="display:flex; justify-content:space-between; margin-bottom:10px;"><h3>المنتجات</h3><button class="btn btn-green" onclick="openModal('addProdModal')">+ منتج</button></div><table><thead><tr><th>صورة</th><th>المنتج</th><th>السعر</th><th>المخزون</th><th>القسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($products as $prod): $sTxt="∞"; $bg=""; if($prod['quantity']!==null){ $n=$prod['quantity']-$prod['total_reserved']; if($n<=0){$sTxt="🚫 نفذت";$bg="background:#fff0f0";} elseif($n<5){$sTxt="⚠️ $n";$bg="background:#fffbe6";} else{$sTxt="✅ $n";} } ?><tr style="<?= $bg ?>"><td data-label="صورة"><img src="uploads/<?= htmlspecialchars($prod['image']) ?>" class="thumb"></td><td data-label="المنتج"><b><?= htmlspecialchars($prod['name']) ?></b><?php if($prod['admin_note']) echo "<br><small style='color:red'>📝" . htmlspecialchars($prod['admin_note']) . "</small>"; ?></td><td data-label="السعر"><?php if($prod['discount_price']): ?><s><?= htmlspecialchars($prod['price']) ?></s> <b style="color:#d00000"><?= htmlspecialchars($prod['discount_price']) ?></b><?php else: echo htmlspecialchars($prod['price']); endif; ?></td><td data-label="المخزون"><?= $sTxt ?></td><td data-label="القسم"><?= htmlspecialchars($prod['cat_name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditProd(<?= json_encode($prod) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="prod_id" value="<?= $prod['id'] ?>"><button name="delete_product" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <div id="tab-cats" class="tab-content">
-            <div class="panel"><button class="btn btn-green" onclick="openModal('addCatModal')">+ قسم</button><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($categories as $cat): ?><tr><td data-label="ID"><?= $cat['id'] ?></td><td data-label="الاسم"><?= $cat['name'] ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><button class="btn btn-green" onclick="openModal('addCatModal')">+ قسم</button><table><thead><tr><th>ID</th><th>الاسم</th><th>تحكم</th></tr></thead><tbody><?php foreach($categories as $cat): ?><tr><td data-label="ID"><?= htmlspecialchars($cat['id']) ?></td><td data-label="الاسم"><?= htmlspecialchars($cat['name']) ?></td><td data-label="تحكم"><button class="btn btn-orange" onclick='openEditCat(<?= json_encode($cat) ?>)'>تعديل</button><form method="POST" style="display:inline;" onsubmit="return confirm('حذف؟');"><input type="hidden" name="cat_id" value="<?= $cat['id'] ?>"><button name="delete_category" class="btn btn-red">حذف</button></form></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <div id="tab-admins" class="tab-content">
-            <div class="panel"><h3>إضافة مشرف</h3><form method="POST" style="display:flex; gap:10px; margin-bottom:20px;"><input type="email" name="new_admin_email" placeholder="البريد" required><input type="text" name="new_admin_pass" placeholder="كلمة المرور" required><button name="add_admin" class="btn btn-blue">إضافة</button></form><h3>المشرفين</h3><table><thead><tr><th>ID</th><th>البريد</th><th>الصلاحية</th><th>تحكم</th></tr></thead><tbody><?php foreach($adminList as $adm): ?><tr><td data-label="ID"><?= $adm['id'] ?></td><td data-label="البريد"><?= $adm['email'] ?></td><td data-label="الصلاحية"><?= $adm['is_super'] == 1 ? '<span style="color:green;font-weight:bold;">عام</span>' : 'عادي' ?></td><td data-label="تحكم"><?php if($isSuperAdmin && $adm['id'] != $_SESSION['admin_id']): ?><form method="POST" onsubmit="return confirm('حذف؟');"><input type="hidden" name="admin_id_del" value="<?= $adm['id'] ?>"><button name="delete_admin" class="btn btn-red">حذف</button></form><?php else: echo '--'; endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
+            <div class="panel"><h3>إضافة مشرف</h3><form method="POST" style="display:flex; gap:10px; margin-bottom:20px;"><input type="email" name="new_admin_email" placeholder="البريد" required><input type="text" name="new_admin_pass" placeholder="كلمة المرور" required><button name="add_admin" class="btn btn-blue">إضافة</button></form><h3>المشرفين</h3><table><thead><tr><th>ID</th><th>البريد</th><th>الصلاحية</th><th>تحكم</th></tr></thead><tbody><?php foreach($adminList as $adm): ?><tr><td data-label="ID"><?= htmlspecialchars($adm['id']) ?></td><td data-label="البريد"><?= htmlspecialchars($adm['email']) ?></td><td data-label="الصلاحية"><?= $adm['is_super'] == 1 ? '<span style="color:green;font-weight:bold;">عام</span>' : 'عادي' ?></td><td data-label="تحكم"><?php if($isSuperAdmin && $adm['id'] != $_SESSION['admin_id']): ?><form method="POST" onsubmit="return confirm('حذف؟');"><input type="hidden" name="admin_id_del" value="<?= $adm['id'] ?>"><button name="delete_admin" class="btn btn-red">حذف</button></form><?php else: echo '--'; endif; ?></td></tr><?php endforeach; ?></tbody></table></div>
         </div>
 
         <!-- 5. تبويب قائمة المشتريات (للتجار) -->
@@ -227,9 +244,9 @@ if ($searchQuery) {
                         <?php foreach($procList as $supplier => $items): ?>
                             <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                                 <div style="background:#1a2a3a; color:#fff; padding:10px; font-weight:bold;">
-                                    🏪 المورد: <?= $supplier ? $supplier : 'غير محدد' ?>
+                                    🏪 المورد: <?= htmlspecialchars($supplier ? $supplier : 'غير محدد') ?>
                                 </div>
-                                <table style="width:100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden;">                                    
+                                <table style="width:100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden;">
                                     <thead >
                                         <tr style="background:#f9f9f9; border-bottom:2px solid #eee;">
                                             <th style="color:#333; background:#eee;">المنتج</th>
@@ -240,9 +257,9 @@ if ($searchQuery) {
                                     <tbody>
                                         <?php foreach($items as $item): ?>
                                         <tr style="border-bottom:1px solid #eee;">
-                                            <td data-label="المنتج" style="padding:10px; font-weight:bold; color:#1a2a3a;"><?= $item['product_name'] ?></td>
-                                            <td data-label="المقاس" style=" padding:10px; color:#d00000; font-weight:bold;"><?= $item['size'] ? $item['size'] : '-' ?></td>
-                                            <td data-label="العدد المطلوب" style="padding:10px; font-size:1.1rem; font-weight:900;" ><?= $item['total_qty_needed'] ?></td>
+                                            <td data-label="المنتج" style="padding:10px; font-weight:bold; color:#1a2a3a;"><?= htmlspecialchars($item['product_name']) ?></td>
+                                            <td data-label="المقاس" style=" padding:10px; color:#d00000; font-weight:bold;"><?= htmlspecialchars($item['size'] ? $item['size'] : '-') ?></td>
+                                            <td data-label="العدد المطلوب" style="padding:10px; font-size:1.1rem; font-weight:900;" ><?= htmlspecialchars($item['total_qty_needed']) ?></td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -264,7 +281,7 @@ if ($searchQuery) {
 <div id="addProdModal" class="modal">
     <div class="modal-content"><span class="close" onclick="closeModal('addProdModal')">&times;</span><h3>إضافة منتج</h3>
     <form method="POST" enctype="multipart/form-data" onsubmit="return validatePrice(this)">
-        <label>القسم</label><select name="category" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>{$c['name']}</option>"; ?></select>
+        <label>القسم</label><select name="category" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
         <label>اسم المنتج</label><input type="text" name="name" required placeholder="اسم المنتج">
         <label>الوصف</label><textarea name="description" placeholder="وصف المنتج للزبون" style="height:60px;"></textarea>
         <label>المقاسات (اختياري)</label><input type="text" name="sizes" placeholder="مثال: S,M,L">
@@ -282,7 +299,7 @@ if ($searchQuery) {
     <div class="modal-content"><span class="close" onclick="closeModal('editProdModal')">&times;</span><h3>تعديل منتج</h3>
     <form method="POST" enctype="multipart/form-data" onsubmit="return validatePrice(this)">
         <input type="hidden" name="prod_id" id="edit_prod_id">
-        <label>القسم</label><select name="category" id="edit_prod_cat" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>{$c['name']}</option>"; ?></select>
+        <label>القسم</label><select name="category" id="edit_prod_cat" required><?php foreach($categories as $c) echo "<option value='{$c['id']}'>".htmlspecialchars($c['name'])."</option>"; ?></select>
         <label>اسم المنتج</label><input type="text" name="name" id="edit_prod_name" required>
         <label>الوصف</label><textarea name="description" id="edit_prod_desc" style="height:60px;"></textarea>
         <label>المقاسات</label><input type="text" name="sizes" id="edit_prod_sizes">
@@ -305,7 +322,7 @@ if ($searchQuery) {
         if(evt) evt.currentTarget.className += " active";
         const url = new URL(window.location); url.searchParams.set('tab', name); window.history.pushState({}, '', url);
     }
-    
+
     // الحل النهائي لمشكلة العودة للتبويب الصحيح
     window.onload = function() {
         const t = new URLSearchParams(window.location.search).get('tab');
@@ -317,7 +334,7 @@ if ($searchQuery) {
             else if(t === 'tab-cats') btnId = 'btn-cats';
             else if(t === 'tab-admins') btnId = 'btn-admins';
             else if(t === 'tab-procurement') btnId = 'btn-procurement';
-            
+
             if(btnId) { document.getElementById(btnId).click(); }
         }
     };
@@ -325,21 +342,21 @@ if ($searchQuery) {
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     function openEditCat(c) { document.getElementById('edit_cat_id').value=c.id; document.getElementById('edit_cat_name').value=c.name; openModal('editCatModal'); }
-    
+
     function openEditProd(p) {
-        document.getElementById('edit_prod_id').value=p.id; 
-        document.getElementById('edit_prod_name').value=p.name; 
-        document.getElementById('edit_prod_desc').value=p.description; 
-        document.getElementById('edit_prod_sizes').value=p.sizes; 
-        document.getElementById('edit_prod_price').value=p.price; 
-        document.getElementById('edit_prod_disc').value=p.discount_price; 
-        document.getElementById('edit_prod_qty').value=p.quantity; 
-        document.getElementById('edit_prod_note').value=p.admin_note; 
+        document.getElementById('edit_prod_id').value=p.id;
+        document.getElementById('edit_prod_name').value=p.name;
+        document.getElementById('edit_prod_desc').value=p.description;
+        document.getElementById('edit_prod_sizes').value=p.sizes;
+        document.getElementById('edit_prod_price').value=p.price;
+        document.getElementById('edit_prod_disc').value=p.discount_price;
+        document.getElementById('edit_prod_qty').value=p.quantity;
+        document.getElementById('edit_prod_note').value=p.admin_note;
         document.getElementById('edit_prod_cat').value=p.category_id;
-        document.getElementById('edit_prod_supplier').value=p.supplier; 
+        document.getElementById('edit_prod_supplier').value=p.supplier;
         openModal('editProdModal');
     }
-    
+
     function validatePrice(form) {
         let price = parseFloat(form.querySelector('input[name="price"]').value);
         let discIn = form.querySelector('input[name="discount"]').value;

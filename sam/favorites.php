@@ -1,5 +1,5 @@
-<?php 
-include 'db.php'; 
+<?php
+include 'db.php';
 
 // جلب المفضلات مع تفاصيل المنتج والمخزون
 $sql = "SELECT p.*, f.id as fav_id,
@@ -19,7 +19,7 @@ $stmt->execute([$user_session]);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مفضلاتي - متجر سام</title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.min.css">
     <!-- انسخ نفس الستايل الخاص بالشبكة products-grid هنا -->
     <style>
          .products-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px; }
@@ -54,38 +54,38 @@ $stmt->execute([$user_session]);
             <div class="product-card" id="fav_card_<?= $row['id'] ?>">
                 <!-- زر حذف من المفضلة -->
                 <button class="fav-btn active" onclick="removeFromFavPage(<?= $row['id'] ?>)">❤️</button>
-                
-                <img src="uploads/<?= $row['image'] ?>">
-                <h4><?= $row['name'] ?></h4>
+
+                <img src="uploads/<?= htmlspecialchars($row['image']) ?>">
+                <h4><?= htmlspecialchars($row['name']) ?></h4>
                 <div class="price-box">
                     <?php if (!empty($row['discount_price']) && $row['discount_price'] > 0): ?>
-                        <span class="old-price"><?= $row['price'] ?></span>
-                        <span class="new-price"><?= $row['discount_price'] ?> ر.ي</span>
+                        <span class="old-price"><?= htmlspecialchars($row['price']) ?></span>
+                        <span class="new-price"><?= htmlspecialchars($row['discount_price']) ?> ر.ي</span>
                     <?php else: ?>
-                        <span class="new-price"><?= $row['price'] ?> ر.ي</span>
+                        <span class="new-price"><?= htmlspecialchars($row['price']) ?> ر.ي</span>
                     <?php endif; ?>
-                </div>                
+                </div>
                 <?php if ($realQty !== null): ?>
                     <?php if($realQty > 0): ?>
-                        
-                         
+
+
                     <?php else: ?>
                         <p style="color:red; font-size:0.8em; font-weight:bold;">نفذت الكمية</p>
                         <button class="btn-add" disabled style="background:#ccc;">غير متوفر</button>
                     <?php endif; ?>
-                
-                    
+
+
                 <?php endif; ?>
-               
+
             </div>
             <?php endwhile; ?>
-            
+
             <?php if(!$hasItems): ?>
                 <p style="text-align:center; width:100%; padding:50px; color:#777;">لم تضف أي منتج للمفضلة بعد.</p>
             <?php endif; ?>
         </div>
     </div>
-    
+
     <!-- هنا تحتاج لنسخ دوال الجافاسكريبت (addToCart, checkSizeAndAdd, etc) من index.php -->
     <!-- ونسخ كود نوافذ السلة والمقاسات لكي يعمل زر الإضافة -->
     <script>
@@ -100,7 +100,7 @@ $stmt->execute([$user_session]);
                 document.getElementById('fav_card_'+pid).style.display = 'none';
             });
         }
-        
+
         // ... (ضع هنا دوال الإضافة للسلة كما في الصفحات الأخرى) ...
     </script>
 </body>

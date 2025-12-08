@@ -1,5 +1,5 @@
-<?php 
-include 'db.php'; 
+<?php
+include 'db.php';
 $query = $_GET['q'] ?? '';
 
 $favMap = [];
@@ -17,7 +17,7 @@ if(isset($user_session)) {
     <title>بحث: <?= htmlspecialchars($query) ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .products-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 10px; }
@@ -56,13 +56,13 @@ if(isset($user_session)) {
     <div class="container">
         <div class="products-grid">
             <?php
-            $sql = "SELECT p.*, (SELECT COALESCE(SUM(qty), 0) FROM cart WHERE product_id = p.id) as total_reserved 
-                    FROM products p 
+            $sql = "SELECT p.*, (SELECT COALESCE(SUM(qty), 0) FROM cart WHERE product_id = p.id) as total_reserved
+                    FROM products p
                     WHERE (name LIKE ? OR description LIKE ?) AND (quantity > 0 OR quantity IS NULL)";
             $stmt = $pdo->prepare($sql);
             $searchTerm = "%$query%";
             $stmt->execute([$searchTerm, $searchTerm]);
-            
+
             $found = false;
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)):
                 $found = true;
@@ -76,22 +76,22 @@ if(isset($user_session)) {
                 <button class="fav-btn <?= isset($favMap[$row['id']]) ? 'active' : '' ?>" onclick="toggleFav(this, <?= $row['id'] ?>)">
                     <i class="<?= isset($favMap[$row['id']]) ? 'fa-solid fa-heart' : 'fa-regular fa-heart' ?>"></i>
                 </button>
-                <img src="uploads/<?= $row['image'] ?>">
-                <h4><?= $row['name'] ?></h4>
+                <img src="uploads/<?= htmlspecialchars($row['image']) ?>">
+                <h4><?= htmlspecialchars($row['name']) ?></h4>
                 <div class="price-box">
                     <?php if (!empty($row['discount_price']) && $row['discount_price'] > 0): ?>
-                        <span class="old-price"><?= $row['price'] ?></span>
-                        <span class="new-price"><?= $row['discount_price'] ?> ر.ي</span>
+                        <span class="old-price"><?= htmlspecialchars($row['price']) ?></span>
+                        <span class="new-price"><?= htmlspecialchars($row['discount_price']) ?> ر.ي</span>
                     <?php else: ?>
-                        <span class="new-price"><?= $row['price'] ?> ر.ي</span>
+                        <span class="new-price"><?= htmlspecialchars($row['price']) ?> ر.ي</span>
                     <?php endif; ?>
                 </div>                <?php if ($realQty !== null): ?>
-                    <div class="qty-label">متبقي: <span id="qty_s_<?= $row['id'] ?>"><?= $realQty ?></span></div>
+                    <div class="qty-label">متبقي: <span id="qty_s_<?= $row['id'] ?>"><?= htmlspecialchars($realQty) ?></span></div>
                 <?php else: ?> <div style="height:20px;"></div> <?php endif; ?>
-                <button class="btn-add" onclick="checkSizeAndAdd(<?= $row['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_s_<?= $row['id'] ?>', '<?= $row['sizes'] ?? '' ?>')">أضف للسلة</button>
+                <button class="btn-add" onclick="checkSizeAndAdd(<?= $row['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_s_<?= $row['id'] ?>', '<?= htmlspecialchars($row['sizes'] ?? '') ?>')">أضف للسلة</button>
             </div>
             <?php endwhile; ?>
-            
+
             <?php if(!$found): ?>
                 <p style="text-align:center; width:100%; padding:20px;">لا توجد منتجات تطابق بحثك.</p>
             <?php endif; ?>
@@ -99,7 +99,7 @@ if(isset($user_session)) {
     </div>
 
     <!-- ================== النوافذ والقوائم ================== -->
-    
+
     <div id="catsMenu" class="cats-menu-container">
         <h4>تصفح الأقسام</h4>
         <a href="latest.php">✨ أحدث المنتجات</a>
@@ -109,7 +109,7 @@ if(isset($user_session)) {
             $checkSql = "SELECT COUNT(*) FROM products WHERE category_id = ? AND (quantity > 0 OR quantity IS NULL)";
             $stmt = $pdo->prepare($checkSql); $stmt->execute([$c['id']]);
             if ($stmt->fetchColumn() > 0): ?>
-            <a href="category.php?id=<?= $c['id'] ?>"><?= $c['name'] ?></a>
+            <a href="category.php?id=<?= htmlspecialchars($c['id']) ?>"><?= htmlspecialchars($c['name']) ?></a>
         <?php endif; endwhile; ?>
     </div>
 
@@ -124,14 +124,14 @@ if(isset($user_session)) {
                 <!-- <input type="text" id="custAddress" class="form-input" placeholder="العنوان بالتفصيل *" required> -->
                                   <!-- حقل العنوان مع زر الموقع الاحترافي -->
                 <div style="position: relative; margin-bottom: 5px;">
-                    <input type="text" id="custAddress" class="form-input" 
-                           placeholder="العنوان بالتفصيل (أو اضغط الأيقونة 🎯)" 
-                           required 
+                    <input type="text" id="custAddress" class="form-input"
+                           placeholder="العنوان بالتفصيل (أو اضغط الأيقونة 🎯)"
+                           required
                            style="padding-left: 45px; margin-bottom: 0;">
-                    
+
                     <!-- زر الأيقونة -->
-                    <button type="button" onclick="getLocation()" title="تحديد موقعي الحالي" 
-                            style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px; 
+                    <button type="button" onclick="getLocation()" title="تحديد موقعي الحالي"
+                            style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px;
                                    border: none; background: #e9ecef; border-top-left-radius: 4px; border-bottom-left-radius: 4px;
                                    color: #d00000; cursor: pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">
                         <i class="fa-solid fa-location-crosshairs" style="font-size: 1.2rem;"></i>
@@ -278,12 +278,12 @@ if(isset($user_session)) {
             let notes = document.getElementById('custNotes').value.trim();
             if(name.split(' ').length < 2) { alert('اكتب الاسم الثنائي'); return; }
             if(address.length < 2) { alert('يرجى كتابة العنوان'); return; }
-            
+
             let btn = document.getElementById('btnCheckout');
             let orgText = btn.innerText; btn.disabled = true; btn.innerText = "جاري المعالجة...";
-            
+
             let fd = new FormData(); fd.append('action', 'checkout'); fd.append('name', name); fd.append('phone', phone); fd.append('address', address); fd.append('notes', notes);
-            const myPhoneNumber = "967738183179"; 
+            const myPhoneNumber = "967738183179";
 
             fetch('api.php', {method:'POST', body:fd}).then(r=>r.json()).then(d=>{
                 if(d.status==='success'){
@@ -298,7 +298,7 @@ if(isset($user_session)) {
                                 let fileUrl = currentUrl + "/invoices/" + resData.file;
                                 let msg = `طلب جديد: ${d.invoice_code}\n👤 ${name}\n📱 ${phone}\n📍 ${address}\n📝 ${notes}\n📄 الفاتورة: ${fileUrl}`;
                                 let whatsappUrl = `https://wa.me/${myPhoneNumber}?text=${encodeURIComponent(msg)}`;
-                                let link = document.createElement('a'); 
+                                let link = document.createElement('a');
                                 link.download = 'SAM_Invoice_' + Date.now() + '.png';
                                 link.href = imgData; link.click();
                                 window.open(whatsappUrl, '_blank');
@@ -315,17 +315,17 @@ if(isset($user_session)) {
             let icon = btn.querySelector('i');
             let fd = new FormData(); fd.append('action', 'toggle_favorite'); fd.append('product_id', pid);
             fetch('api.php', { method: 'POST', body: fd }).then(r => r.json()).then(data => {
-                if (data.status === 'added') { btn.classList.add('active'); icon.classList.remove('fa-regular'); icon.classList.add('fa-solid'); icon.classList.add('fa-heart'); } 
+                if (data.status === 'added') { btn.classList.add('active'); icon.classList.remove('fa-regular'); icon.classList.add('fa-solid'); icon.classList.add('fa-heart'); }
                 else { btn.classList.remove('active'); icon.classList.remove('fa-solid'); icon.classList.add('fa-regular'); icon.classList.add('fa-heart'); }
             });
         }
         function getLocation() {
         let addressField = document.getElementById("custAddress");
-        
+
         if (navigator.geolocation) {
             addressField.value = "جاري جلب الموقع... 📡";
             document.body.style.cursor = 'wait';
-            
+
             // طلب دقة عالية (High Accuracy)
             navigator.geolocation.getCurrentPosition(showPosition, showError, {
                 enableHighAccuracy: true, // محاولة الحصول على أدق موقع ممكن (GPS)
@@ -341,14 +341,14 @@ if(isset($user_session)) {
         document.body.style.cursor = 'default';
         let lat = position.coords.latitude;
         let long = position.coords.longitude;
-        
+
         // رابط يفتح تطبيق الخرائط مباشرة
         let googleMapsLink = `https://maps.google.com/?q=${lat},${long}`;
-        
+
         // وضع الرابط في الحقل
         let field = document.getElementById("custAddress");
         field.value = googleMapsLink;
-        
+
         // وميض للحقل لتأكيد العملية
         field.style.borderColor = "#28a745";
         setTimeout(() => { field.style.borderColor = "#ddd"; }, 2000);
@@ -359,7 +359,7 @@ if(isset($user_session)) {
         let field = document.getElementById("custAddress");
         field.value = ""; // تفريغ الحقل
         field.placeholder = "تعذر تحديد الموقع، اكتب العنوان يدوياً";
-        
+
         switch(error.code) {
             case error.PERMISSION_DENIED:
                 alert("يجب السماح للموقع بالوصول للموقع الجغرافي من إعدادات المتصفح.");

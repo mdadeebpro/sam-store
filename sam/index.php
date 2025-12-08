@@ -1,5 +1,5 @@
-<?php 
-include 'db.php'; 
+<?php
+include 'db.php';
 $favMap = [];
 if(isset($user_session)) {
     $fStmt = $pdo->prepare("SELECT product_id FROM favorites WHERE session_id = ?");
@@ -17,10 +17,10 @@ if(isset($user_session)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>متجر سام للملابس والأدوات المنزلية</title>
     <link rel="icon" type="image/x-icon" href="s.png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
- 
+
 </head>
 <body>
 
@@ -45,14 +45,14 @@ if(isset($user_session)) {
     </div> -->
 
     <div class="container">
-        
+
         <!-- ================= قسم أحدث المنتجات ================= -->
         <?php
-        ob_start(); 
-        
-        $sqlLatest = "SELECT p.*, 
+        ob_start();
+
+        $sqlLatest = "SELECT p.*,
                       (SELECT COALESCE(SUM(qty), 0) FROM cart WHERE product_id = p.id) as total_reserved
-                      FROM products p 
+                      FROM products p
                       WHERE (quantity > 0 OR quantity IS NULL)
                       ORDER BY created_at DESC LIMIT 10";
         $stmt = $pdo->query($sqlLatest);
@@ -62,7 +62,7 @@ if(isset($user_session)) {
             // حساب الكمية
             if ($row['quantity'] !== null) {
                 $realQty = $row['quantity'] - $row['total_reserved'];
-                if ($realQty <= 0) continue; 
+                if ($realQty <= 0) continue;
             } else {
                 $realQty = null;
             }
@@ -71,36 +71,36 @@ if(isset($user_session)) {
         ?>
             <div class="product-card">
                 <!-- زر المفضلة (أحدث المنتجات) -->
-                <button class="fav-btn <?= isset($favMap[$row['id']]) ? 'active' : '' ?>" 
+                <button class="fav-btn <?= isset($favMap[$row['id']]) ? 'active' : '' ?>"
         onclick="toggleFav(this, <?= $row['id'] ?>)">
     <i class="<?= isset($favMap[$row['id']]) ? 'fa-solid fa-heart' : 'fa-regular fa-heart' ?>"></i>
 </button>
 
-                <img src="uploads/<?= $row['image'] ?>" alt="<?= $row['name'] ?>">
-                <h4><?= $row['name'] ?></h4>
+                <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['name']) ?>">
+                <h4><?= htmlspecialchars($row['name']) ?></h4>
                 <p class="product-desc"><?= htmlspecialchars($row['description'] ?? '') ?></p>
-                
+
                 <div class="price-box">
-                    <?= $row['discount_price'] ? "<span class='old-price'>{$row['price']}</span>" : "" ?> 
-                    <span class="new-price"><?= $price ?> ر.ي</span>
+                    <?= $row['discount_price'] ? "<span class='old-price'>" . htmlspecialchars($row['price']) . "</span>" : "" ?>
+                    <span class="new-price"><?= htmlspecialchars($price) ?> ر.ي</span>
                 </div>
-                
+
                 <?php if ($realQty !== null): ?>
                     <div class="qty-label">
                         <!-- لاحظ الـ ID هنا يبدأ بـ qty_idx -->
-                        متبقي: <span id="qty_idx_<?= $row['id'] ?>"><?= $realQty ?></span>
+                        متبقي: <span id="qty_idx_<?= $row['id'] ?>"><?= htmlspecialchars($realQty) ?></span>
                     </div>
                 <?php else: ?>
-                     <div style="height:20px;"></div> 
+                     <div style="height:20px;"></div>
                 <?php endif; ?>
-                
+
                 <!-- زر الإضافة (يستخدم qty_idx ليتطابق مع الـ ID في الأعلى) -->
-                <button class="btn-add" onclick="checkSizeAndAdd(<?= $row['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_idx_<?= $row['id'] ?>', '<?= $row['sizes'] ?? '' ?>')">أضف للسلة</button>
+                <button class="btn-add" onclick="checkSizeAndAdd(<?= $row['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_idx_<?= $row['id'] ?>', '<?= htmlspecialchars($row['sizes'] ?? '') ?>')">أضف للسلة</button>
             </div>
-        <?php endwhile; 
-        
-        $latestHTML = ob_get_clean(); 
-        
+        <?php endwhile;
+
+        $latestHTML = ob_get_clean();
+
         if ($hasLatest):
         ?>
             <div class="section-header">
@@ -117,26 +117,26 @@ if(isset($user_session)) {
         <?php
         // استخدام GROUP BY name لمنع التكرار
         $cats = $pdo->query("SELECT * FROM categories GROUP BY name ORDER BY id DESC");
-        
+
         while($cat = $cats->fetch(PDO::FETCH_ASSOC)):
-            
+
             ob_start();
             $hasProducts = false;
 
-            $catSql = "SELECT p.*, 
+            $catSql = "SELECT p.*,
                        (SELECT COALESCE(SUM(qty), 0) FROM cart WHERE product_id = p.id) as total_reserved
-                       FROM products p 
+                       FROM products p
                        WHERE category_id = ? AND (quantity > 0 OR quantity IS NULL)
                        ORDER BY id DESC";
             $cStmt = $pdo->prepare($catSql);
             // ملاحظة: إذا كان هناك تكرار في الأسماء بـ IDs مختلفة، هذا الاستعلام سيجلب منتجات الـ ID الأول فقط
             // هذا الحل يخفي التكرار في العرض
             $cStmt->execute([$cat['id']]);
-            
+
             while($prod = $cStmt->fetch(PDO::FETCH_ASSOC)):
                 if ($prod['quantity'] !== null) {
                     $realQty = $prod['quantity'] - $prod['total_reserved'];
-                    if ($realQty <= 0) continue; 
+                    if ($realQty <= 0) continue;
                 } else {
                     $realQty = null;
                 }
@@ -144,46 +144,46 @@ if(isset($user_session)) {
                 $price = $prod['discount_price'] ? $prod['discount_price'] : $prod['price'];
             ?>
                 <div class="product-card">
-                    <button class="fav-btn <?= isset($favMap[$prod['id']]) ? 'active' : '' ?>" 
+                    <button class="fav-btn <?= isset($favMap[$prod['id']]) ? 'active' : '' ?>"
                             onclick="toggleFav(this, <?= $prod['id'] ?>)">
                         <i class="<?= isset($favMap[$prod['id']]) ? 'fa-solid fa-heart' : 'fa-regular fa-heart' ?>"></i>
                     </button>
 
-                    <img src="uploads/<?= $prod['image'] ?>" alt="<?= $prod['name'] ?>">
-                    <h4><?= $prod['name'] ?></h4>
+                    <img src="uploads/<?= htmlspecialchars($prod['image']) ?>" alt="<?= htmlspecialchars($prod['name']) ?>">
+                    <h4><?= htmlspecialchars($prod['name']) ?></h4>
                     <p class="product-desc"><?= htmlspecialchars($prod['description'] ?? '') ?></p>
-                    
+
                     <div class="price-box">
-                        <?= $prod['discount_price'] ? "<span class='old-price'>{$prod['price']}</span>" : "" ?> 
-                        <span class="new-price"><?= $price ?> ر.ي</span>
+                        <?= $prod['discount_price'] ? "<span class='old-price'>" . htmlspecialchars($prod['price']) . "</span>" : "" ?>
+                        <span class="new-price"><?= htmlspecialchars($price) ?> ر.ي</span>
                     </div>
 
                     <?php if ($realQty !== null): ?>
                         <div class="qty-label">
-                            متبقي: <span id="qty_cat_<?= $prod['id'] ?>"><?= $realQty ?></span>
+                            متبقي: <span id="qty_cat_<?= $prod['id'] ?>"><?= htmlspecialchars($realQty) ?></span>
                         </div>
                     <?php else: ?>
-                        <div style="height:20px;"></div> 
+                        <div style="height:20px;"></div>
                     <?php endif; ?>
 
-                    <button class="btn-add" onclick="checkSizeAndAdd(<?= $prod['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_cat_<?= $prod['id'] ?>', '<?= $prod['sizes'] ?? '' ?>')">أضف للسلة</button>
+                    <button class="btn-add" onclick="checkSizeAndAdd(<?= $prod['id'] ?>, <?= $realQty !== null ? 'true' : 'false' ?>, 'qty_cat_<?= $prod['id'] ?>', '<?= htmlspecialchars($prod['sizes'] ?? '') ?>')">أضف للسلة</button>
                 </div>
-            <?php endwhile; 
-            
+            <?php endwhile;
+
             $catHTML = ob_get_clean();
-            
+
             if ($hasProducts):
             ?>
                 <div class="section-header">
-                    <h3><?= $cat['name'] ?></h3>
+                    <h3><?= htmlspecialchars($cat['name']) ?></h3>
                     <button onclick="window.location.href='category.php?id=<?= $cat['id'] ?>'">عرض الكل</button>
                 </div>
                 <div class="products-row">
                     <?= $catHTML ?>
                 </div>
-            <?php 
+            <?php
             endif;
-        endwhile; 
+        endwhile;
         ?>
 
     <!-- زر السلة العائم -->
@@ -198,31 +198,31 @@ if(isset($user_session)) {
     <!-- قائمة الأقسام -->
     <div id="catsMenu" class="cats-menu-container">
         <h4>تصفح الأقسام</h4>
-        
+
         <!-- رابط ثابت لأحدث المنتجات -->
         <a href="latest.php">✨ أحدث المنتجات</a>
-        
+
         <?php
         // جلب الأقسام التي تحتوي على منتجات متاحة فقط
         $menuCats = $pdo->query("SELECT * FROM categories");
         while($c = $menuCats->fetch(PDO::FETCH_ASSOC)):
-            
+
             // التحقق من وجود منتجات غير نافذة في هذا القسم
-            $checkSql = "SELECT COUNT(*) FROM products 
-                         WHERE category_id = ? 
+            $checkSql = "SELECT COUNT(*) FROM products
+                         WHERE category_id = ?
                          AND (quantity > 0 OR quantity IS NULL)";
-            
+
             // ملاحظة: هذا فحص سريع، الفحص الدقيق للمحجوز يتطلب استعلاماً أثقل
             // لكن لغرض القائمة السريعة، هذا يكفي لإخفاء الأقسام الفارغة تماماً
             $stmt = $pdo->prepare($checkSql);
             $stmt->execute([$c['id']]);
-            
+
             if ($stmt->fetchColumn() > 0):
         ?>
-            <a href="category.php?id=<?= $c['id'] ?>"><?= $c['name'] ?></a>
-        <?php 
+            <a href="category.php?id=<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></a>
+        <?php
             endif;
-        endwhile; 
+        endwhile;
         ?>
     </div>
     <!-- نافذة السلة -->
@@ -238,14 +238,14 @@ if(isset($user_session)) {
                 <!-- الحقول الجديدة -->
                  <!-- حقل العنوان مع زر الموقع الاحترافي -->
                 <div style="position: relative; margin-bottom: 5px;">
-                    <input type="text" id="custAddress" class="form-input" 
-                           placeholder="العنوان بالتفصيل (أو اضغط الأيقونة 🎯)" 
-                           required 
+                    <input type="text" id="custAddress" class="form-input"
+                           placeholder="العنوان بالتفصيل (أو اضغط الأيقونة 🎯)"
+                           required
                            style="padding-left: 45px; margin-bottom: 0;">
-                    
+
                     <!-- زر الأيقونة -->
-                    <button type="button" onclick="getLocation()" title="تحديد موقعي الحالي" 
-                            style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px; 
+                    <button type="button" onclick="getLocation()" title="تحديد موقعي الحالي"
+                            style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px;
                                    border: none; background: #e9ecef; border-top-left-radius: 4px; border-bottom-left-radius: 4px;
                                    color: #d00000; cursor: pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">
                         <i class="fa-solid fa-location-crosshairs" style="font-size: 1.2rem;"></i>
@@ -274,11 +274,11 @@ if(isset($user_session)) {
         <a href="index.php" class="logo-container">
             <span class="logo-text-store">STORE</span>
             <span class="logo-text-sam">SAM</span>
-        </a>            
+        </a>
             <p style="margin:0; color:#777;">فاتورة ضريبية مبسطة</p>
             <p style="margin:0; font-weight:bold; color:#d00000;">رقم الفاتورة: #<span id="invId"></span></p>
         </div>
-        
+
         <div style="margin-bottom:15px; font-size:0.9rem;">
             <p style="margin:5px 0;"><strong>العميل:</strong> <span id="invName"></span></p>
             <p style="margin:5px 0;"><strong>الهاتف:</strong> <span id="invPhone"></span></p>
@@ -296,11 +296,11 @@ if(isset($user_session)) {
             </thead>
             <tbody id="invBody"></tbody>
         </table>
-        
+
         <div style="text-align:left; margin-top:15px;">
             <h3>الإجمالي: <span id="invTotal" style="color:#d00000;"></span> ر.ي</h3>
         </div>
-        
+
         <p>- <span style="color: red; font-weight: bold;">#ملاحظة :</span> يرجى ارسال الفاتورة الى مالك المتجر ليتم تجهيز طلبك، شكرا لتعاملكم معنا.</p>
 
     </div>
@@ -314,7 +314,7 @@ if(isset($user_session)) {
         document.getElementById('cartModal').style.display = 'flex';
         loadCartItems();
     }
-    
+
     function closeModal(id) {
         document.getElementById(id).style.display = 'none';
     }
@@ -360,7 +360,7 @@ if(isset($user_session)) {
     // الدالة الثانية: التنفيذ الفعلي (استبدال addToCart القديمة)
     function addToCartFinal(pid, hasQty, elemId, selectedSize) {
         if (!pid) return;
-        
+
         // التحقق البصري من الكمية
         let qtyElem = document.getElementById(elemId);
         let currentQty = hasQty && qtyElem ? parseInt(qtyElem.innerText) : 0;
@@ -403,17 +403,17 @@ if(isset($user_session)) {
     function loadCartItems() {
         let fd = new FormData();
         fd.append('action', 'get_cart');
-        
+
         fetch('api.php', { method: 'POST', body: fd })
         .then(r => r.json())
         .then(items => {
-            globalCartItems = items; 
+            globalCartItems = items;
             let html = '', invHtml = '', total = 0;
-            
+
             items.forEach((item, index) => {
                 let price = item.discount_price ? item.discount_price : item.price;
                 total += price * item.qty;
-                
+
                 // تجهيز نص المقاس
                 let sizeDisplay = item.size ? `<span class="cart-size"> (مقاس: ${item.size})</span>` : '';
                 let sizeForInvoice = item.size ? ` (${item.size})` : '';
@@ -423,7 +423,7 @@ if(isset($user_session)) {
                 <div class="cart-item">
                     <!-- 1. الصورة (يمين) -->
                     <img src="uploads/${item.image}" onclick="previewProduct(${index})">
-                    
+
                     <!-- 2. التفاصيل (وسط) -->
                     <div class="cart-details">
                         <div class="cart-name">${item.name} ${sizeDisplay}</div>
@@ -438,7 +438,7 @@ if(isset($user_session)) {
                             <span class="qty-num">${item.qty}</span>
                             <button class="qty-btn" onclick="updateQty(${item.cart_id}, 'decrease')">-</button>
                         </div>
-                        
+
                         <!-- أزرار الحذف والمعاينة -->
                         <div class="tools-group">
                             <button class="tool-btn view" onclick="previewProduct(${index})" title="معاينة">
@@ -450,7 +450,7 @@ if(isset($user_session)) {
                         </div>
                     </div>
                 </div>`;
-                
+
                 // جدول الفاتورة (مخفي)
                 invHtml += `<tr>
                                 <td style="padding:5px;">${item.name} ${sizeForInvoice}</td>
@@ -458,7 +458,7 @@ if(isset($user_session)) {
                                 <td>${item.qty}</td>
                             </tr>`;
             });
-            
+
             // في حال السلة فارغة
             if (items.length === 0) {
                 html = `
@@ -480,7 +480,7 @@ if(isset($user_session)) {
         fd.append('action', 'update_cart_qty');
         fd.append('cart_id', id);
         fd.append('operation', op);
-        
+
         fetch('api.php', {method:'POST', body:fd})
         .then(r=>r.json())
         .then(d=>{
@@ -509,11 +509,11 @@ if(isset($user_session)) {
     function previewProduct(index) {
         let item = globalCartItems[index];
         if (!item) return;
-        
+
         let price = item.discount_price ? item.discount_price : item.price;
         // تنسيق الوصف: إذا فارغ نكتب رسالة لطيفة
         let desc = item.description ? item.description.replace(/\n/g, "<br>") : "لا يوجد وصف إضافي لهذا المنتج.";
-        
+
         // عرض المقاس إن وجد
         let sizeHtml = item.size ? `<span style="display:block; font-size:0.9rem; color:#1a2a3a; margin-bottom:5px;">المقاس المختار: <b style="color:#d00000">${item.size}</b></span>` : '';
 
@@ -528,7 +528,7 @@ if(isset($user_session)) {
                 <div class="preview-title">${item.name}</div>
                 ${sizeHtml}
                 <div class="preview-price">${price} ر.ي</div>
-                
+
                 <div class="preview-desc">
                     <strong>📝 الوصف:</strong><br>
                     ${desc}
@@ -539,7 +539,7 @@ if(isset($user_session)) {
                     <button onclick="closeModal('previewModal')" class="btn-modal btn-close-action">
                         إغلاق
                     </button>
-                    
+
                     <button onclick="removeFromCart(${item.cart_id}); closeModal('previewModal');" class="btn-modal btn-remove-action">
                         <i class="fa-solid fa-trash-can"></i> حذف من السلة
                     </button>
@@ -561,19 +561,19 @@ if(isset($user_session)) {
         // جلب القيم الجديدة
         let address = document.getElementById('custAddress').value.trim();
         let notes = document.getElementById('custNotes').value.trim();
-        
+
         // التحقق من المدخلات
         if(name.split(' ').length < 2) { alert('اكتب الاسم الثنائي'); return; }
         // if(phone.length < 6) { alert('رقم الهاتف غير صحيح'); return; }
         if(address.length < 2) { alert('يرجى كتابة العنوان بشكل واضح'); return; }
-        
+
         let btn = document.getElementById('btnCheckout');
         let orgText = btn.innerText;
         btn.disabled = true;
         btn.innerText = "جاري المعالجة...";
-        
-        let fd = new FormData(); 
-        fd.append('action', 'checkout'); 
+
+        let fd = new FormData();
+        fd.append('action', 'checkout');
         fd.append('name', name);
         fd.append('phone', phone);
         // إرسال البيانات الجديدة
@@ -581,7 +581,7 @@ if(isset($user_session)) {
         fd.append('notes', notes);
 
         // رقم هاتفك للواتساب
-        const myPhoneNumber = "967738183179"; 
+        const myPhoneNumber = "967738183179";
 
         fetch('api.php', {method:'POST', body:fd})
         .then(r=>r.json())
@@ -589,18 +589,18 @@ if(isset($user_session)) {
             if(d.status==='success'){
                 // --- تعبئة الفاتورة بالبيانات الجديدة ---
                 document.getElementById('invName').innerText = name;
-                
+
                 // سنقوم بإضافة العنوان ورقم الهاتف للفاتورة بإنشاء عناصر HTML لها
                 // تأكد أنك ستضيف هذه العناصر في HTML الفاتورة أدناه (الخطوة 4)
                 document.getElementById('invPhone').innerText = phone;
-                document.getElementById('invAddress').innerText = address; 
-                // document.getElementById('invId').innerText = d.order_id; 
+                document.getElementById('invAddress').innerText = address;
+                // document.getElementById('invId').innerText = d.order_id;
                 document.getElementById('invId').innerText = d.invoice_code;
                 document.getElementById('invoice-area').style.display='block';
-                
+
                 html2canvas(document.getElementById('invoice-area')).then(canvas => {
                     let imgData = canvas.toDataURL('image/png');
-                    
+
                     // رفع الصورة
                     let uploadFd = new FormData();
                     uploadFd.append('action', 'save_invoice_image');
@@ -615,9 +615,9 @@ if(isset($user_session)) {
 
                             // إضافة العنوان للرسالة
                             let msg = `طلب جديد من: ${name}\n📱 الهاتف: ${phone}\n📍 العنوان: ${address}\n📝 ملاحظات: ${notes}\n📄 الفاتورة: ${fileUrl}`;
-                            
+
                             let whatsappUrl = `https://wa.me/${myPhoneNumber}?text=${encodeURIComponent(msg)}`;
-                            
+
                             // تنزيل الصورة للزبون
                             let link = document.createElement('a');
                             link.download = 'SAM_Invoice_' + Date.now() + '.png';
@@ -630,8 +630,8 @@ if(isset($user_session)) {
                     });
                     document.getElementById('invoice-area').style.display='none';
                 });
-            } else { 
-                alert(d.message); 
+            } else {
+                alert(d.message);
                 btn.disabled = false;
                 btn.innerText = orgText;
             }
@@ -642,9 +642,9 @@ if(isset($user_session)) {
     // --- عند العودة من صفحة أخرى ---
     window.onload = function() {
         const u = new URLSearchParams(window.location.search);
-        if(u.get('open_cart')==='1') { 
-            openCart(); 
-            window.history.replaceState({},document.title,"index.php"); 
+        if(u.get('open_cart')==='1') {
+            openCart();
+            window.history.replaceState({},document.title,"index.php");
         }
     };
     // دالة فتح وإغلاق قائمة الأقسام
@@ -661,7 +661,7 @@ if(isset($user_session)) {
         let menu = document.getElementById('catsMenu');
         // نبحث عن أقرب عنصر nav-item تم ضغطه (لأن الأيقونة داخل div)
         let clickedNavItem = e.target.closest('.nav-item');
-        
+
         // التحقق: إذا كانت القائمة مفتوحة
         if (menu.style.display === 'block') {
             // إذا لم نضغط داخل القائمة، ولم نضغط على زر القائمة (الأول في الشريط)
@@ -676,7 +676,7 @@ if(isset($user_session)) {
     });
     function toggleFav(btn, pid) {
         let icon = btn.querySelector('i'); // الوصول للأيقونة داخل الزر
-        
+
         let fd = new FormData();
         fd.append('action', 'toggle_favorite');
         fd.append('product_id', pid);
@@ -704,8 +704,8 @@ if(isset($user_session)) {
     window.addEventListener( "pageshow", function ( event ) {
       // الـ history.navigationMode deprecated ولكن هذا الفحص يعمل في معظم المتصفحات
       // للتحقق مما إذا كانت الصفحة مخزنة في الـ Cache
-      var historyTraversal = event.persisted || 
-                             ( typeof window.performance != "undefined" && 
+      var historyTraversal = event.persisted ||
+                             ( typeof window.performance != "undefined" &&
                                   window.performance.navigation.type === 2 );
       if ( historyTraversal ) {
         // إعادة تحميل الصفحة لجلب حالة المفضلة الجديدة من قاعدة البيانات
@@ -714,11 +714,11 @@ if(isset($user_session)) {
     });
     function getLocation() {
         let addressField = document.getElementById("custAddress");
-        
+
         if (navigator.geolocation) {
             addressField.value = "جاري جلب إحداثياتك... 📡";
             document.body.style.cursor = 'wait';
-            
+
             // طلب دقة عالية (High Accuracy)
             navigator.geolocation.getCurrentPosition(showPosition, showError, {
                 enableHighAccuracy: true, // محاولة الحصول على أدق موقع ممكن (GPS)
@@ -734,14 +734,14 @@ if(isset($user_session)) {
         document.body.style.cursor = 'default';
         let lat = position.coords.latitude;
         let long = position.coords.longitude;
-        
+
         // رابط يفتح تطبيق الخرائط مباشرة
         let googleMapsLink = `https://maps.google.com/?q=${lat},${long}`;
-        
+
         // وضع الرابط في الحقل
         let field = document.getElementById("custAddress");
         field.value = googleMapsLink;
-        
+
         // وميض للحقل لتأكيد العملية
         field.style.borderColor = "#28a745";
         setTimeout(() => { field.style.borderColor = "#ddd"; }, 2000);
@@ -752,7 +752,7 @@ if(isset($user_session)) {
         let field = document.getElementById("custAddress");
         field.value = ""; // تفريغ الحقل
         field.placeholder = "تعذر تحديد الموقع، اكتب العنوان يدوياً";
-        
+
         switch(error.code) {
             case error.PERMISSION_DENIED:
                 alert("يجب السماح للموقع بالوصول للموقع الجغرافي من إعدادات المتصفح.");
@@ -790,7 +790,7 @@ if(isset($user_session)) {
             <span class="fav-count">= $favCount ?></span>
         php endif; ?>
     </a> -->
-    
+
 <!-- نافذة اختيار المقاس -->
 <div id="sizeModal" class="modal">
     <div class="modal-content" style="text-align:center; padding-top:30px;">
