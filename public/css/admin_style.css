@@ -1,0 +1,186 @@
+/* General Admin Styles */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --light-color: #ecf0f1;
+    --text-color: #bdc3c7;
+    --highlight-color: #3498db;
+    --danger-color: #e74c3c;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: var(--light-color);
+    color: #333;
+    direction: rtl;
+}
+
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 20px;
+    flex-shrink: 0;
+}
+
+.sidebar h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar-search {
+    padding: 0 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.sidebar-search button {
+    display: none; /* Hide the button, search on enter */
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 12px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background-color: var(--highlight-color);
+    color: #fff;
+}
+
+.sidebar .logout {
+    position: absolute;
+    bottom: 20px;
+}
+
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    background-color: #ecf0f1;
+}
+
+.main-content header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.main-content header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+/* Content Box / Card */
+.content-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* Forms */
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: right;
+    vertical-align: middle;
+}
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+td img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 18px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+}
+.btn-primary { background-color: var(--highlight-color); color: white; }
+.btn-danger { background-color: var(--danger-color); color: white; }
+.btn-add { margin-bottom: 20px; }
+
+.inline-form {
+    display: inline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .admin-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .sidebar .logout {
+        position: relative;
+        margin-top: 20px;
+    }
+    .main-content {
+        padding: 15px;
+    }
+    .main-content header h1 {
+        font-size: 1.5em;
+    }
+}
