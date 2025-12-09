@@ -455,3 +455,101 @@ document.addEventListener('DOMContentLoaded', () => {
         processOfflineQueue();
     }
 });
+
+
+// =================================================================================
+// --- 6. PWA Push Notifications Logic ---
+// =================================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const notificationsBtn = document.getElementById('notifications-btn');
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+        // Show the button if features are supported
+        notificationsBtn.style.display = 'block';
+        notificationsBtn.addEventListener('click', () => {
+            handleNotificationSubscription(notificationsBtn);
+        });
+    }
+});
+
+function handleNotificationSubscription(btn) {
+    btn.disabled = true;
+
+    navigator.serviceWorker.ready.then(swRegistration => {
+        swRegistration.pushManager.getSubscription().then(subscription => {
+            if (subscription === null) {
+                // Not subscribed, so subscribe now
+                subscribeUser(swRegistration, btn);
+            } else {
+                // Already subscribed, maybe allow to unsubscribe? For now, just inform.
+                alert('أنت مشترك بالفعل في الإشعارات.');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الاشتراك';
+            }
+        });
+    });
+}
+
+function subscribeUser(swRegistration, btn) {
+    // VAPID public key (must be urlBase64 encoded)
+    const applicationServerKey = urlBase64ToUint8Array('BMBlr6YznhYMX3NgcWIDRxZXs0sh7tCv7_YCsWcww0ZCv9WGg-tRCXfMEHTiBPCksSqeve1twlbmVAZFv7GSuj0');
+
+    swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey
+    })
+    .then(subscription => {
+        console.log('User is subscribed.');
+        // Send subscription to the server
+        saveSubscriptionToServer(subscription);
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الاشتراك بنجاح';
+        alert('شكراً لاشتراكك! ستصلك إشعارات بالمنتجات الجديدة.');
+    })
+    .catch(err => {
+        console.error('Failed to subscribe the user: ', err);
+        alert('فشل الاشتراك في الإشعارات. يرجى التأكد من أنك لم تحظرها للموقع.');
+        btn.disabled = false;
+    });
+}
+
+function saveSubscriptionToServer(subscription) {
+    const fd = new FormData();
+    fd.append('action', 'save-subscription');
+    fd.append('subscription', JSON.stringify(subscription));
+
+    fetch('api.php', {
+        method: 'POST',
+        body: fd
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to save subscription on server.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status !== 'success') {
+            console.error('Server error:', data.message);
+        } else {
+            console.log('Subscription saved on server.');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving subscription:', error);
+    });
+}
+
+// Helper function to convert VAPID key
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}

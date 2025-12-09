@@ -64,6 +64,43 @@ if (isset($_POST['add_product'])) {
     // ------------------------------------
 
     $pdo->prepare("INSERT INTO products (name,description,supplier,sizes,category_id,price,discount_price,quantity,image,admin_note) VALUES (?,?,?,?,?,?,?,?,?,?)")->execute([$name,$desc,$supplier,$sizes,$cat,$price,$disc,$qty,$imgName,$note]);
+
+    // --- PWA: Send Push Notifications ---
+    require_once __DIR__ . '/web-push-php/src/WebPush.php';
+    require_once __DIR__ . '/web-push-php/src/Subscription.php';
+
+    $vapidKeys = include __DIR__ . '/vapid_keys.php';
+
+    $auth = [
+        'VAPID' => [
+            'subject' => 'mailto:contact@sam-store.com',
+            'publicKey' => $vapidKeys['publicKey'],
+            'privateKey' => $vapidKeys['privateKey'],
+        ],
+    ];
+
+    $webPush = new \Minishlink\WebPush\WebPush($auth);
+
+    $subscriptions = $pdo->query("SELECT subscription FROM push_subscriptions")->fetchAll(PDO::FETCH_ASSOC);
+
+    $notificationPayload = json_encode([
+        'title' => 'منتج جديد وصل!',
+        'body' => 'تمت إضافة منتج جديد: ' . $name,
+        'icon' => 'icons/icon-192x192.png',
+        'badge' => 'icons/icon-192x192.png',
+        // 'data' => ['url' => 'product.php?id=' . $pdo->lastInsertId()] // Optional: direct link
+    ]);
+
+    foreach ($subscriptions as $sub) {
+        $subscription = \Minishlink\WebPush\Subscription::create(json_decode($sub['subscription'], true));
+        $webPush->queueNotification($subscription, $notificationPayload);
+    }
+
+    foreach ($webPush->flush() as $report) {
+        // You can log reports for debugging if needed
+    }
+    // --- End PWA ---
+
     header("Location: admin.php?tab=tab-products&t=".time()); exit;
 }
 if (isset($_POST['delete_product'])) { $pdo->prepare("DELETE FROM products WHERE id = ?")->execute([$_POST['prod_id']]); header("Location: admin.php?tab=tab-products&t=".time()); exit; }

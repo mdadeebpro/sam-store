@@ -245,4 +245,36 @@ if ($action == 'toggle_favorite') {
     }
     exit;
 }
+
+// --- 8. حفظ اشتراك الإشعارات ---
+if ($action == 'save-subscription') {
+    $subscription_data = $_POST['subscription'];
+
+    // Check if the subscription is valid JSON
+    $subscription = json_decode($subscription_data, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($subscription['endpoint'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid subscription data.']);
+        exit;
+    }
+
+    // Check if the subscription endpoint already exists to avoid duplicates
+    $stmt = $pdo->prepare("SELECT id FROM push_subscriptions WHERE subscription LIKE ?");
+    $endpoint_search = '%' . $subscription['endpoint'] . '%';
+    $stmt->execute([$endpoint_search]);
+    $existing = $stmt->fetch();
+
+    if ($existing) {
+        // Already exists, no need to insert again
+        echo json_encode(['status' => 'success', 'message' => 'Subscription already exists.']);
+    } else {
+        // Insert the new subscription
+        $stmt = $pdo->prepare("INSERT INTO push_subscriptions (subscription) VALUES (?)");
+        if ($stmt->execute([$subscription_data])) {
+            echo json_encode(['status' => 'success', 'message' => 'Subscription saved.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save subscription.']);
+        }
+    }
+    exit;
+}
 ?>

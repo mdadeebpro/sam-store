@@ -74,3 +74,48 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
+// --- Push Notification Event Listener ---
+self.addEventListener('push', (event) => {
+    console.log('[Service Worker] Push Received.');
+    const data = event.data.json();
+
+    const title = data.title || 'رسالة جديدة';
+    const options = {
+        body: data.body || 'لديك رسالة جديدة من متجر سام.',
+        icon: data.icon || 'icons/icon-192x192.png',
+        badge: data.badge || 'icons/icon-192x192.png',
+        data: {
+            url: data.data ? data.data.url : self.location.origin,
+        },
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// --- Notification Click Event Listener ---
+self.addEventListener('notificationclick', (event) => {
+    console.log('[Service Worker] Notification click Received.');
+
+    event.notification.close();
+
+    const urlToOpen = event.notification.data.url || self.location.origin;
+
+    event.waitUntil(
+        clients.matchAll({
+            type: 'window',
+            includeUncontrolled: true,
+        }).then((clientList) => {
+            // If a window for the app is already open, focus it.
+            for (const client of clientList) {
+                if (client.url === urlToOpen && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Otherwise, open a new window.
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
+});
